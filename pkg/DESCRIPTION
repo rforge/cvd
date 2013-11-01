@@ -1,0 +1,12 @@
+Package: CVD
+Type: Package
+Title: Color Vision Deficiencies
+Version: 1.0.0
+Encoding: UTF-8
+Authors@R: c(person(given = "José", family = "Gama", role = c("aut","cre","trl"),email = "jgama@abo.fi"),
+    person(given = "Göran", family = "Högnäs", role = "ths"))  
+Description: Methods for color vision deficiencies (CVD), to help understanding and mitigating issues with CVDs and to generate tests for diagnosis and interpretation.
+License: GPL (>= 3)
+Depends: R (>= 2.7.0)
+Enhances: png
+LazyData: yes
