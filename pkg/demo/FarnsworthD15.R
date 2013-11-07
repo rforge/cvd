@@ -1,4 +1,4 @@
-library(gWidgets)
+library(gWidgets2)
 options(guiToolkit="RGtk2")
 library(RGtk2)
 library(CVD)
@@ -28,14 +28,14 @@ colorgBtn<-function(allButtons,allColors)
 {# assign colors to the buttons
 n<-1
 for (b in allButtons) {
-b$modifyBg('normal', allColors[n])
-b$modifyBg('active', allColors[n])
-b$modifyBg('prelight', allColors[n])
-b$modifyBg('selected', allColors[n])
-b$modifyFg('normal', allColors[n])
-b$modifyFg('active', allColors[n])
-b$modifyFg('prelight', allColors[n])
-b$modifyFg('selected', allColors[n])
+getWidget(b)$modifyBg('normal', allColors[n])
+getWidget(b)$modifyBg('active', allColors[n])
+getWidget(b)$modifyBg('prelight', allColors[n])
+getWidget(b)$modifyBg('selected', allColors[n])
+getWidget(b)$modifyFg('normal', allColors[n])
+getWidget(b)$modifyFg('active', allColors[n])
+getWidget(b)$modifyFg('prelight', allColors[n])
+getWidget(b)$modifyFg('selected', allColors[n])
 n<-n+1
 }
 }
@@ -87,24 +87,28 @@ getToolkitWidget(w)$maximize()
 g0 <- ggroup(cont=w, expand=TRUE, horizontal=F, spacing =0)
 g <- ggroup(cont=g0, expand=TRUE, horizontal=T, spacing =0)
 
-wlayout = glayout(visible=TRUE,container=g, expand=TRUE, spacing =0)
+wlayout = glayout(visible=TRUE,container=g0, expand=TRUE, spacing =0)
 
 wlayout[1,1, expand=TRUE] = gbutton('\n', cont=wlayout)
 for (n in 1:15) wlayout[1,n+1, expand=TRUE] = gbutton('\n', cont=wlayout)
+
 colorgBtn(wlayout[1,],c(color1st,lColors))
 
 lTimer<-glabel('Time left  2:00', cont = g0 )
-font(lTimer) <- c(color="red", size='30')
-bDONE<-gbutton("Done", cont=g0,handler = validate)
-font(bDONE) <- c(color="red", size='30')
 
-w$modifyBg(GtkStateType["normal"], "black")
+font(lTimer) <- c(color="red", weight = 'bold', scale = "xx-large")
+
+
+bDONE<-gbutton("Done", cont=g0,handler = validate)
+font(bDONE) <- c(color="red", weight = 'bold', scale = "xx-large")
+
+getWidget(w)$modifyBg(GtkStateType["normal"], "black")
 
 n<-1
 for (b in wlayout[1,2:16]) {
 eval(parse( text=paste('addDropSource(b, handler = function(h,...) tmpv<<-',as.character(n),')',sep='') ))
-eval(parse( text=paste('adddroptarget(b,targetType="object", handler = function(h,...) dropF(h,',as.character(n),'))',sep='') ))
+eval(parse( text=paste('addDropTarget(b,targetType="object", handler = function(h,...) dropF(h,',as.character(n),'))',sep='') ))
 n<-n+1
 }
 
-addHandlerIdle (lTimer, handler = incTimer, interval = 2000)
+gtimer(2000, incTimer, lTimer )

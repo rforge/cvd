@@ -163,7 +163,7 @@ Dsd+(y-y0)*(0.02132 - 0.009562*Dsd)
 }
 
 greyscale.avg<-function(colorArray){# average RGB values - grayscale algorithm
-p3<-apply(colorArray[,,-4],1:2,mean)
+if (dim(colorArray)[3]>3) p3<-apply(colorArray[,,-4],1:2,mean) else p3<-apply(colorArray,1:2,mean)
 p3<-array(p3,dim(colorArray))
 if (dim(colorArray)[3]>3) p3[,,4]<-colorArray[,,4]
 p3
@@ -173,7 +173,9 @@ greyscale.Y<-function(colorArray){# YIQ/NTSC - RGB colors in a gamma 2.2 color s
 colorArray[,,1]<-colorArray[,,1]*0.299
 colorArray[,,2]<-colorArray[,,2]*0.587
 colorArray[,,3]<-colorArray[,,3]*0.114
-p3<-apply(colorArray[,,-4],1:2,sum)
+
+if (dim(colorArray)[3]>3) p3<-apply(colorArray[,,-4],1:2,sum) else p3<-apply(colorArray,1:2,sum)
+
 p3<-array(p3,dim(colorArray))
 if (dim(colorArray)[3]>3) p3[,,4]<-colorArray[,,4]
 p3
@@ -183,7 +185,7 @@ greyscale.Linear<-function(colorArray){# linear RGB colors - grayscale algorithm
 colorArray[,,1]<-colorArray[,,1]*0.3086
 colorArray[,,2]<-colorArray[,,2]*0.6094
 colorArray[,,3]<-colorArray[,,3]*0.0820
-p3<-apply(colorArray[,,-4],1:2,sum)
+if (dim(colorArray)[3]>3) p3<-apply(colorArray[,,-4],1:2,sum) else p3<-apply(colorArray,1:2,sum)
 p3<-array(p3,dim(colorArray))
 if (dim(colorArray)[3]>3) p3[,,4]<-colorArray[,,4]
 p3
@@ -193,7 +195,7 @@ greyscale.RMY<-function(colorArray){# RMY - grayscale algorithm
 colorArray[,,1]<-colorArray[,,1]*0.5
 colorArray[,,2]<-colorArray[,,2]*0.419
 colorArray[,,3]<-colorArray[,,3]*0.081
-p3<-apply(colorArray[,,-4],1:2,sum)
+if (dim(colorArray)[3]>3) p3<-apply(colorArray[,,-4],1:2,sum) else p3<-apply(colorArray,1:2,sum)
 p3<-array(p3,dim(colorArray))
 if (dim(colorArray)[3]>3) p3[,,4]<-colorArray[,,4]
 p3
@@ -203,14 +205,16 @@ greyscale.BT709<-function(colorArray){# BT709 - grayscale algorithm
 colorArray[,,1]<-colorArray[,,1]*0.2125
 colorArray[,,2]<-colorArray[,,2]*0.7154
 colorArray[,,3]<-colorArray[,,3]*0.0721
-p3<-apply(colorArray[,,-4],1:2,sum)
+if (dim(colorArray)[3]>3) p3<-apply(colorArray[,,-4],1:2,sum) else p3<-apply(colorArray,1:2,sum)
 p3<-array(p3,dim(colorArray))
 if (dim(colorArray)[3]>3) p3[,,4]<-colorArray[,,4]
 p3
 }
 
 greyscale.Luminosity<-function(colorArray){# Luminosity - grayscale algorithm
-p3<-apply(colorArray[,,-4],1:2,function(x) (max(x)+min(x))/2)
+
+if (dim(colorArray)[3]>3) p3<-apply(colorArray[,,-4],1:2,function(x) (max(x)+min(x))/2) else p3<-apply(colorArray,1:2,function(x) (max(x)+min(x))/2)
+
 p3<-array(p3,dim(colorArray))
 if (dim(colorArray)[3]>3) p3[,,4]<-colorArray[,,4]
 p3

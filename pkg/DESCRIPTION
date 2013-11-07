@@ -8,5 +8,5 @@ Authors@R: c(person(given = "José", family = "Gama", role = c("aut","cre","trl"
 Description: Methods for color vision deficiencies (CVD), to help understanding and mitigating issues with CVDs and to generate tests for diagnosis and interpretation.
 License: GPL (>= 3)
 Depends: R (>= 2.7.0)
-Enhances: png
+Enhances: png, gWidgets2, RGtk2
 LazyData: yes
