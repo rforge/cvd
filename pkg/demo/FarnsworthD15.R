@@ -28,14 +28,14 @@ colorgBtn<-function(allButtons,allColors)
 {# assign colors to the buttons
 n<-1
 for (b in allButtons) {
-getWidget(b)$modifyBg('normal', allColors[n])
-getWidget(b)$modifyBg('active', allColors[n])
-getWidget(b)$modifyBg('prelight', allColors[n])
-getWidget(b)$modifyBg('selected', allColors[n])
-getWidget(b)$modifyFg('normal', allColors[n])
-getWidget(b)$modifyFg('active', allColors[n])
-getWidget(b)$modifyFg('prelight', allColors[n])
-getWidget(b)$modifyFg('selected', allColors[n])
+getWidget(b)$modifyBg(GtkStateType["normal"], allColors[n])
+getWidget(b)$modifyBg(GtkStateType["active"], allColors[n])
+getWidget(b)$modifyBg(GtkStateType["prelight"], allColors[n])
+getWidget(b)$modifyBg(GtkStateType["selected"], allColors[n])
+getWidget(b)$modifyFg(GtkStateType["normal"], allColors[n])
+getWidget(b)$modifyFg(GtkStateType["active"], allColors[n])
+getWidget(b)$modifyFg(GtkStateType["prelight"], allColors[n])
+getWidget(b)$modifyFg(GtkStateType["selected"], allColors[n])
 n<-n+1
 }
 }
