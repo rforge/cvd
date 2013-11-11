@@ -50,8 +50,6 @@ lColorsOK<-sprintf('#%02x%02x%02x',FarnsworthD15[-1,'R'],FarnsworthD15[-1,'G'],F
 pos2<-c()
 for (n in 1:15) pos2<-c(pos2,which(userD15colors[n] == lColorsOK) )
 }
-
-
 posRow<-c(1,pos2+1)
 posRow<-posRow[1:15]
 posColumn<- pos2+1
@@ -60,7 +58,7 @@ for (n in 1:15) {
 posValue<-c(posValue,BowmanTCDS[posRow[n],posColumn[n]])
 posValueNormal<-c(n,BowmanTCDS[posRow[n],posColumn[n]])
 }
-TCDS<-sum(posValue)# TCDS
+TCDS<-sum(posValue)/10# TCDS
 #  Color Confusion Index (CCI = TCDSactual / TCDSnormal)
 CCI<-TCDS/sum(posValueNormal)
 c(TCDS=TCDS,CCI=CCI)
