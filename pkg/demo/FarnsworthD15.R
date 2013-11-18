@@ -51,7 +51,10 @@ if ((posI== as.numeric(tmpv)+1) ) posI<-posI+1
 if (posI==1) ndxs<-c(as.numeric(tmpv),ndxs) else ndxs<-append(ndxs, as.numeric(tmpv), after=posI-1)
 ndxs<-ndxs[-which(is.na(ndxs))]
 lColors<<-lColors[ndxs]
-colorgBtn(wlayout[1,2:16],lColors)
+#colorgBtn(wlayout[1,2:16],lColors)
+
+mapply(modify_button, buttons, c(color1st,lColors))
+
 tmpv<<-''
 }
 
@@ -89,18 +92,32 @@ g0 <- ggroup(cont=w, expand=TRUE, horizontal=F, spacing =0)
 g <- ggroup(cont=g0, expand=TRUE, horizontal=T, spacing =0)
 
 wlayout = glayout(visible=TRUE,container=g0, expand=TRUE, spacing =0)
-wlayout[1,1, expand=TRUE] = gbutton('\n', cont=wlayout)
-for (n in 1:15) wlayout[1,n+1, expand=TRUE] = gbutton('\n', cont=wlayout)
+#wlayout[1,1, expand=TRUE] = gbutton('\n', cont=wlayout)
+#for (n in 1:15) wlayout[1,n+1, expand=TRUE] = gbutton('\n', cont=wlayout)
 
-#buttons <- lapply(1:16, function(i) gbutton(as.character(i), cont=wlayout))
-#wlayout[1,1, expand=TRUE] =buttons
-#mapply(colorgBtn, buttons, lColors()[seq_along(buttons)])
+buttons <- lapply(1:16, function(x) gbutton('\n', cont=wlayout))
+for (n in 1:16) wlayout[1,n, expand=TRUE] = buttons[[n]]
+#
 
 
 #sapply( lColors, as.GdkColor)
+modify_button <- function(b, col) {
+  col <- as.GdkColor(col)
+  getToolkitWidget(b)$modifyBg(GtkStateType["normal"], col)
+getToolkitWidget(b)$modifyBg(GtkStateType["active"], col)
+getToolkitWidget(b)$modifyBg(GtkStateType["prelight"], col)
+getToolkitWidget(b)$modifyBg(GtkStateType["selected"], col)
+getToolkitWidget(b)$modifyFg(GtkStateType["normal"], col)
+getToolkitWidget(b)$modifyFg(GtkStateType["active"], col)
+getToolkitWidget(b)$modifyFg(GtkStateType["prelight"], col)
+getToolkitWidget(b)$modifyFg(GtkStateType["selected"], col)
+  
+}
+
+mapply(modify_button, buttons, c(color1st,lColors))
 
 
-colorgBtn(wlayout[1,],c(color1st,lColors))
+#colorgBtn(wlayout[1,],c(color1st,lColors))
 
 lTimer<-glabel('Time left  2:00', cont = g0 )
 
