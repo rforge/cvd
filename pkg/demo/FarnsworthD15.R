@@ -28,14 +28,15 @@ colorgBtn<-function(allButtons,allColors)
 {# assign colors to the buttons
 n<-1
 for (b in allButtons) {
-getWidget(b)$modifyBg(GtkStateType["normal"], allColors[n])
-getWidget(b)$modifyBg(GtkStateType["active"], allColors[n])
-getWidget(b)$modifyBg(GtkStateType["prelight"], allColors[n])
-getWidget(b)$modifyBg(GtkStateType["selected"], allColors[n])
-getWidget(b)$modifyFg(GtkStateType["normal"], allColors[n])
-getWidget(b)$modifyFg(GtkStateType["active"], allColors[n])
-getWidget(b)$modifyFg(GtkStateType["prelight"], allColors[n])
-getWidget(b)$modifyFg(GtkStateType["selected"], allColors[n])
+col<-as.GdkColor(allColors[n])
+getToolkitWidget(b)$modifyBg(GtkStateType["normal"], col)
+getToolkitWidget(b)$modifyBg(GtkStateType["active"], col)
+getToolkitWidget(b)$modifyBg(GtkStateType["prelight"], col)
+getToolkitWidget(b)$modifyBg(GtkStateType["selected"], col)
+getToolkitWidget(b)$modifyFg(GtkStateType["normal"], col)
+getToolkitWidget(b)$modifyFg(GtkStateType["active"], col)
+getToolkitWidget(b)$modifyFg(GtkStateType["prelight"], col)
+getToolkitWidget(b)$modifyFg(GtkStateType["selected"], col)
 n<-n+1
 }
 }
@@ -88,9 +89,16 @@ g0 <- ggroup(cont=w, expand=TRUE, horizontal=F, spacing =0)
 g <- ggroup(cont=g0, expand=TRUE, horizontal=T, spacing =0)
 
 wlayout = glayout(visible=TRUE,container=g0, expand=TRUE, spacing =0)
-
 wlayout[1,1, expand=TRUE] = gbutton('\n', cont=wlayout)
 for (n in 1:15) wlayout[1,n+1, expand=TRUE] = gbutton('\n', cont=wlayout)
+
+#buttons <- lapply(1:16, function(i) gbutton(as.character(i), cont=wlayout))
+#wlayout[1,1, expand=TRUE] =buttons
+#mapply(colorgBtn, buttons, lColors()[seq_along(buttons)])
+
+
+#sapply( lColors, as.GdkColor)
+
 
 colorgBtn(wlayout[1,],c(color1st,lColors))
 
@@ -102,7 +110,7 @@ font(lTimer) <- c(color="red", weight = 'bold', scale = "xx-large")
 bDONE<-gbutton("Done", cont=g0,handler = validate)
 font(bDONE) <- c(color="red", weight = 'bold', scale = "xx-large")
 
-getWidget(w)$modifyBg(GtkStateType["normal"], "black")
+getToolkitWidget(w)$modifyBg(GtkStateType["normal"], "black")
 
 n<-1
 for (b in wlayout[1,2:16]) {
