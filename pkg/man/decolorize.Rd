@@ -24,6 +24,14 @@ Pattern Recognition, vol. 40, no. 11, pp. 2891-2896, (2007).
 http://www.Eyemaginary.com/Portfolio/Publications.html
 }
 \examples{
-
+\dontrun{
+samplePics <- c('fruits', 'pastel_color', 'sample1', 'TurnColorsGrayImage1', 'TurnColorsGrayImage2')
+for (pics in samplePics)
+{
+fname<-paste(system.file(package='CVD'),'/extdata/',pics,'.png',sep='')
+g1<-decolorize(fname)
+png::writePNG(g1$tones, paste(pics, '.decolorize.png',sep=''))
+}
+}
 }
 \keyword{programming}

@@ -12,7 +12,7 @@ scoreD15Graphic(userD15colors=NULL,userD15values=NULL, titleGraphic="Farnsworth 
   \item{okD15colors}{ vector with RGB colors in the correct sequence}
 }
 \value{
-  \item{TCDS}{ Total Color Difference Score (TCDS)}
+  none
 }
 \author{Jose Gama}
 \references{

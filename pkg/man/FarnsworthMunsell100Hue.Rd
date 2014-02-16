@@ -8,9 +8,10 @@ The Farnsworth Munsell 100-Hue is a test for detecting congenital and acquired c
 \format{
   This data frame contains the following columns:
   \describe{
-    \item{CIEL}{ CIELab L channel cap color}
-    \item{CIEa}{ CIELab a channel cap color}
-    \item{CIEb}{ CIELab b channel cap color}
+    \item{CapNo}{ Cap Number}
+    \item{Munsell}{ Munsell color}
+    \item{x.C}{ CIE x cap color}
+    \item{y.C}{ CIE y cap color}
     \item{R}{ R channel cap color}
     \item{G}{ G channel cap color}
     \item{B}{ B channel cap color}

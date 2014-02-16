@@ -1,0 +1,30 @@
+library(gWidgets2)
+options(guiToolkit="RGtk2")
+library(RGtk2)
+library(CVD)
+
+#gmessage('Example identical to A Method For Quantitative Scoring Of The Farnsworth Panel D-15 K.J. Bowman 1982')
+
+data(FarnsworthD15)
+data(exampleBowman1982)
+
+.pardefault <- par(no.readonly = T)
+#png('exampleBowman1982.png')
+par(mfrow=c(3,2),mar=c(1,1,1,1),oma=c(0, 0, 2, 0),cex=1)
+scoreTCDS <-scoreD15TCDS(userD15values=exampleBowman1982[,1])
+scoreD15Graphic(userD15values=exampleBowman1982[,1], titleGraphic=paste('A ( TCDS = ',scoreTCDS[1],', CCI = ',round(scoreTCDS[2],3),' )',sep=''))
+scoreTCDS <-scoreD15TCDS(userD15values=exampleBowman1982[,2])
+scoreD15Graphic(userD15values=exampleBowman1982[,2], titleGraphic=paste('B ( TCDS = ',scoreTCDS[1],', CCI = ',round(scoreTCDS[2],3),' )',sep=''))
+scoreTCDS <-scoreD15TCDS(userD15values=exampleBowman1982[,3])
+scoreD15Graphic(userD15values=exampleBowman1982[,3], titleGraphic=paste('C ( TCDS = ',scoreTCDS[1],', CCI = ',round(scoreTCDS[2],3),' )',sep=''))
+scoreTCDS <-scoreD15TCDS(userD15values=exampleBowman1982[,4])
+scoreD15Graphic(userD15values=exampleBowman1982[,4], titleGraphic=paste('D ( TCDS = ',scoreTCDS[1],', CCI = ',round(scoreTCDS[2],3),' )',sep=''))
+scoreTCDS <-scoreD15TCDS(userD15values=exampleBowman1982[,5])
+scoreD15Graphic(userD15values=exampleBowman1982[,5], titleGraphic=paste('E ( TCDS = ',scoreTCDS[1],', CCI = ',round(scoreTCDS[2],3),' )',sep=''))
+scoreTCDS <-scoreD15TCDS(userD15values=exampleBowman1982[,6])
+scoreD15Graphic(userD15values=exampleBowman1982[,6], titleGraphic=paste('F ( TCDS = ',scoreTCDS[1],', CCI = ',round(scoreTCDS[2],3),' )',sep=''))
+mtext('Panel D-15 with Bowman\'s TCDS', side = 3, line = 0, outer = TRUE,cex=1.5)
+#dev.off()
+par(.pardefault)
+
+

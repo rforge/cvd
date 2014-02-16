@@ -59,22 +59,28 @@ tmpv<<-''
 }
 
 # instructions
-gmessage('The Farnsworth dichotomous test (D-15) classifies subjects into Strongly/Medium color deficient or Mildly color deficient/normal.
 
-The test should be administered on a black background, to prevent any interference from background colors.
+gmessage('General Description.\n\nThe Farnsworth Dichotomous Test for Color Blindness (Panel D-15) is designed to select those observers with severe discrimination loss. In addition to indicating red-green discrimination loss, the test also indicates blue-yellow dicrimination loss and detects monochromacy. The test consists of 15 colored caps placed in a box, with one reference cap at a fixed location. The samples are chosen to represent approximately equal hue steps in the natural color circle and are similar in chroma to those of the FM 100-hue test. They are set in plastic caps and subtend 1.5 degrees at 50 cm. The movable caps are numbered on the back according to the correct color circle. An instruction manual and scoring sheets are provided. Additional scoring sheets are available.\n\nQuoted from:\nProcedures for Testing Color Vision: Report of Working Group 41\nCommittee on Vision, National Research Council\nISBN: 0-309-58883-9, 128 pages, 8.5 x 11, (1981)', title="Farnsworth D-15 color vision test - General Description",icon = "info")
+gmessage('Administration.\n\nThe examiner prearranges the caps in random order on the upper lid of the open box. The subject is instructed to "arrange the caps in order according to color" in the lower tray, starting with the cap closest in color to the fixed reference cap. The box is presented at a comfortable distance under daylight illumination of at least 270 lux. The majority of individuals with normal color vision can complete the test within one minute. The observer is allowed as long as is necessary to complete the task. People with poor coordination may have difficulty in handling the caps.\n\nQuoted from:\nProcedures for Testing Color Vision: Report of Working Group 41\nCommittee on Vision, National Research Council\nISBN: 0-309-58883-9, 128 pages, 8.5 x 11, (1981)', title="Farnsworth D-15 color vision test - Administration",icon = "info")
 
-The recommended illumination is approximately 6700º Kelvin at 25 foot-candles or greater (Illuminant C) or daylight.
+# The Farnsworth dichotomous test (D-15) classifies subjects into Strongly/Medium color deficient or Mildly color deficient/normal.
+# 
+# The test should be administered on a black background, to prevent any interference from background colors.
+# 
+# The recommended illumination is approximately 6700 deg. Kelvin at 25 foot-candles or greater (Illuminant C) or daylight.
+# 
+# The working distance is about 50 cm (20 inches). There are 15 colored caps to be sorted, the most common sizes are 12 mm (0.5 inches) and 33 mm (1.3 inches).
+# 
+# The first colored cap (from the left) is the "reference cap", this is the first color from the sequence of colors and it can\'t be moved.
+# The test taker has two minutes to move the caps to form a sequence of colors. The test will finish after two minutes or after pressing the button "Done".
+# 
+# 
+# Instructions based on: 
+# Farnsworth D-15 and Lanthony Test Instructions
+# Rev 1.7 (05/06)
+# Richmond Products Inc.
 
-The working distance is 50 cm (19.5 inches). There are 15 colored caps to be sorted, the most common sizes are 12 mm (0.5 inches) and 33 mm (1.3 inches).
 
-The first colored cap (from the left) is the "reference cap", this is the first color from the sequence of colors and it can\'t be moved.
-The test taker has two minutes to move the caps to form a sequence of colors. The test will finish after two minutes or after pressing the button "Done".
-
-
-Instructions based on: 
-Farnsworth D-15 and Lanthony Test Instructions
-Rev 1.7 (05/06)
-Richmond Products Inc.', title="Farnsworth D-15 color vision test - instructions",icon = "info")
 
 # prepare variables for the colors to be displayed and the sequence from the user
 data(FarnsworthD15) # list of colors

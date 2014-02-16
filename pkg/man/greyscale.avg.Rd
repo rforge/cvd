@@ -25,6 +25,15 @@ greyscale.avg(colorArray)
 }
 \author{Jose Gama}
 \examples{
-
+\dontrun{
+samplePics <- c('fruits', 'pastel_color', 'sample1', 'TurnColorsGrayImage1', 'TurnColorsGrayImage2')
+for (pics in samplePics)
+{
+fname<-paste(system.file(package='CVD'),'/extdata/',pics,'.png',sep='')
+imgTest<-loadPNG(fname)
+g1<-greyscale.avg(imgTest)
+png::writePNG(g1, paste(pics, '.greyscale.avg.png',sep=''))
+}
+}
 }
 \keyword{programming}

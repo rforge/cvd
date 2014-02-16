@@ -1,1 +1,17 @@
 FarnsworthD15	Farnsworth dichotomous test (D-15)
+FM100	Farnsworth-Munsell 100 hues test (FM-100)
+Roth28	Roth-28 test
+FarnsworthD15.Windows	Farnsworth dichotomous test (D-15) - version for Windows
+FM100.Windows	Farnsworth-Munsell 100 hues test (FM-100) - version for Windows
+Roth28.Windows	Roth-28 test - version for Windows
+LanthonyD15	Lanthony D-15d, desaturated D-15
+LanthonyD15.Windows	Lanthony D-15d, desaturated D-15 - version for Windows
+example1Lanthony1978	Example identical to Fig. 1 from The Desaturated Panel D-15 P. Lanthony Documenta Ophthalmologica 46,1: 185-189, 1978
+example2Lanthony1978	Example identical to Fig. 2 from The Desaturated Panel D-15 P. Lanthony Documenta Ophthalmologica 46,1: 185-189, 1978
+exampleBowman	Example identical to A Method For Quantitative Scoring Of The Farnsworth Panel D-15 K.J. Bowman 1982
+exampleFarnsworth	Example identical to Farnsworth D. The Farnsworth Dichotomous Test for Color Blindness Panel D-15 Manual. New York, The Psychological Corp., 1947, pp. 1-8.
+exampleFM100	Example identical to proceedings of the New Zealand Generating fast automated reports for the Farnsworth-Munsell 100-hue colour vision test Ray Hidayat, Computer Science Research Student Conference 2008
+exampleNRC1981	Example identical to Procedures for Testing Color Vision: Report of Working Group 41, 1981, Committee on Vision, National Research Council
+exampleSimunovic2004	Example identical to Cone dystrophies Part 2 Cone dysfunction syndromes, Matthew P Simunovic
+exampleVKS91	Example similar to Vingrys, A.J. and King-Smith, P.E. (1988). A quantitative scoring technique for panel tests of color vision. Investigative Ophthalmology and Visual Science, 29, 50-63.
+

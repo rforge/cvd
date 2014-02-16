@@ -1,4 +1,841 @@
 
+
+
+
+
+vectorPNGbuttons<-function(capsData=FarnsworthD15)
+{# vector with the PNG button filenames
+capsData <- data.matrix((capsData[,c('R','G','B')]))
+apply(capsData,1,function(x) {
+rgbName <- sprintf('%02x%02x%02x.png',x['R'],x['G'],x['B'])
+paste(system.file(package='CVD'),'/extdata/',rgbName,sep='')
+})
+}
+
+loadPNG<-function(fileIN=NULL, silent=FALSE)
+{#loads a PNG and shows the dimensions, useful for interactive testing
+if (is.null(fileIN)) stop('A file input must be defined')
+if (!file.exists(fileIN)) stop('Error! File does not exist')
+p<-png::readPNG(fileIN)
+if (!silent) print(paste('PNG ',dim(p)[1],'x',dim(p)[2],', ',dim(p)[3],' channels.',sep=''))
+p
+}
+
+createPNGbuttons<-function(capsData=FarnsworthD15, imgLength=44, imgWidth=78)
+{# creates PNG buttons from a data.frame with RGB values for test caps
+capsData <- data.matrix((capsData[,c('R','G','B')]))
+apply(capsData,1,function(x) {
+rgbName <- sprintf('%02x%02x%02x.png',x['R'],x['G'],x['B'])
+img.array<-array(rep(c(x),each=imgLength*imgWidth),c(imgLength,imgWidth,3))
+png::writePNG(img.array/255, rgbName)
+})
+}
+
+approx.scotopic.luminance.LarsonEtAl.XYZ<-function(XYZmatrix) XYZmatrix[,2] * (1.33*(1+(XYZmatrix[,2]+XYZmatrix[,3])/XYZmatrix[,1]) -1.68)
+approx.scotopic.luminance.LarsonEtAl.RGB<-function(RGBmatrix) RGBmatrix[,1] * 0.062 + RGBmatrix[,2] * 0.608 + RGBmatrix[,3] * 0.330
+approx.scotopic.luminance.LarsonEtAl.XYZ.array<-function(XYZarray)
+{
+im2 <- matrix(apply(XYZarray,1:2,t),length(XYZarray)/3,3,byrow=TRUE)
+g1<-approx.scotopic.luminance.LarsonEtAl.XYZ(im2)
+g2<-array(cbind(g1,g1,g1),dim(XYZarray))
+g2
+}
+approx.scotopic.luminance.LarsonEtAl.RGB.array<-function(RGBarray)
+{
+im2 <- matrix(apply(RGBarray,1:2,t),length(RGBarray)/3,3,byrow=TRUE)
+g1<-approx.scotopic.luminance.LarsonEtAl.RGB(im2)
+g2<-array(cbind(g1,g1,g1),dim(RGBarray))
+g2
+}
+
+
+
+# Larson, G. W., H. Rushmeier, and C. Piatko (1997, October - December). A visibility matching tone reproduction operator for high dynamic range scenes.
+# IEEE Transactions on Visualization and Computer Graphics 3 (4), 291–306.
+
+XYZ2scotopic.Rawtran<-function(XYZmatrix) 0.36169*XYZmatrix[,3] + 1.18214*XYZmatrix[,2] - 0.80498*XYZmatrix[,1]
+XYZ2scotopic.Rawtran.array<-function(XYZarray)
+{
+im2 <- matrix(apply(XYZarray,1:2,t),length(XYZarray)/3,3,byrow=TRUE)
+g1<-XYZ2scotopic.Rawtran(im2)
+g2<-array(cbind(g1,g1,g1),dim(XYZarray))
+g2
+}
+# XYZ to scotopic curve, D65, original code: Rawtran - integral.physics.muni.cz
+# Masaryk University, http://integral.physics.muni.cz/rawtran/
+# Filip Hroch, 1998, Computer Programs for CCD Photometry,
+# 20th Stellar Conference of the Czech and Slovak Astronomical Institutes,
+# DusekJ., http://adsabs.harvard.edu/abs/1998stel.conf...30H
+
+effectivePupilArea<-function(d) pi*d^2/4*(1-0.085*d^2/8+0.002*d^4/48) # effective area
+#Smith, VC, Pokorny, J, and Yeh, T: The Farnsworth-Munsell 100-hue test in cone excitation space. Documenta Ophthalmologica Proceedings Series 56:281-291, 1993.
+
+luminance2troland<-function(Lv, d=NA)
+{ # convert from luminance (cd/m^2) to troland and effective troland
+#Smith, VC, Pokorny, J, and Yeh, T: The Farnsworth-Munsell 100-hue test in cone excitation space. Documenta Ophthalmologica Proceedings Series 56:281-291, 1993.
+cbind(troland=Lv * d^2 * pi/4, effectivetroland=Lv * pi*d^2/4*(1-0.085*d^2/8+0.002*d^4/48))
+}
+
+illuminance2troland<-function(Ev, lumFactor, d=NA)
+{ # convert from illuminance (lux) to troland and effective troland
+#Smith, VC, Pokorny, J, and Yeh, T: The Farnsworth-Munsell 100-hue test in cone excitation space. Documenta Ophthalmologica Proceedings Series 56:281-291, 1993.
+cbind(troland=Ev * lumFactor/pi * d^2 * pi/4, effectivetroland=Ev * lumFactor/pi * pi*d^2/4*(1-0.085*d^2/8+0.002*d^4/48))
+}
+
+VKSvariantGraphic<-function(VKSdata, xLimit=5, yLimit=4, VKStitle='', VKSxlabel='',VKSylabel=''){
+xl<-0:(xLimit)
+yl<-0:(yLimit*2)
+x2<-xLimit * 4
+# plot the axis
+z<-lapply(1:(xLimit*2), function(x) { c1<-calculateCircle(xLimit,yLimit,x);plot(c1,xlim=c(0,xLimit*2),ylim=c(0,yLimit*2) ,col='lightgrey',type='l', xaxt='n', yaxt='n',ylab='',xlab='');par(new=TRUE) })
+z<-lapply(1:12, function(x) {segments(xLimit, yLimit, xLimit+x2*sin(x*30*pi/180),yLimit+x2*cos(x*30*pi/180), col = ifelse((x %% 3)==0,'black','lightgrey')) })
+# plot the data
+uniqV<-unique(VKSdata[,1])
+z<-lapply(1:dim(VKSdata)[1],
+function(x) {
+symbV<-which(uniqV==VKSdata[x,1])
+angleV<-VKSdata[x,2]*2
+indexV<-VKSdata[x,3]
+par(new=TRUE)
+plot(cos(angleV*pi/180)*indexV + xLimit, yLimit+sin(angleV*pi/180)*indexV ,xlim=c(0,xLimit*2),ylim=c(0,yLimit*2),type='p',pch=symbV, xaxt='n', yaxt='n',ylab='',xlab='')
+})
+Axis(side=2,at=0:(yLimit*2), labels= c(yLimit:1,0,1:yLimit)) # Y axis
+Axis(side=1,at=yLimit*tan((0:xLimit*30)*pi/180) + xLimit, labels=0:xLimit*30) # X axis
+title(main = VKStitle, xlab = VKSxlabel, ylab = VKSylabel)
+legend("topright",pch=1:length(uniqV), uniqV,bg='white')#,title='Symbols'
+}
+
+VKSgraphic<-function(VKSdata, xLimit=5, yLimit=4, VKStitle='', VKSxlabel='',VKSylabel=''){
+xl<-0:(xLimit)
+yl<-0:(yLimit*2)
+# plot the axis
+z<-lapply(1:(xLimit*2), function(x) { c1<-calculateCircle(0,yLimit,x);plot(c1,xlim=c(0,xLimit*2),ylim=c(0,yLimit*2) ,col='lightgrey',type='l', xaxt='n', yaxt='n',ylab='',xlab='');par(new=TRUE) })
+abline(h = yLimit, col = 'lightgrey')
+abline(v = 0, col = 'lightgrey')
+z<-lapply(-5:5, function(x) { abline(a = yLimit, b = tan(x*15*pi/180), col = 'lightgrey') })
+# plot the data
+uniqV<-unique(VKSdata[,1])
+z<-lapply(1:dim(VKSdata)[1],
+function(x) {
+symbV<-which(uniqV==VKSdata[x,1])
+angleV<-VKSdata[x,2]
+indexV<-VKSdata[x,3]
+par(new=TRUE)
+plot(cos(angleV*pi/180)*indexV, yLimit+sin(angleV*pi/180)*indexV ,xlim=c(0,xLimit*2),ylim=c(0,yLimit*2),type='p',pch=symbV, xaxt='n', yaxt='n',ylab='',xlab='')
+})
+Axis(side=2,at=0:(yLimit*2), labels= c(yLimit:1,0,1:yLimit)) # Y axis
+Axis(side=1,at=yLimit*tan((0:xLimit*15)*pi/180), labels=0:xLimit*15) # X axis
+title(main = VKStitle, xlab = VKSxlabel, ylab = VKSylabel)
+legend("topright",pch=1:length(uniqV), uniqV,bg='white')#,title='Symbols'
+}
+
+showDuplicated<-function(cnum)
+{ # show missing and duplicated cap numbers
+n <- length(cnum)
+if (!all(sort(cnum) == 1:n))
+{
+missingC<-which(!(1:n %in% cnum))
+repeatedC<-cnum[which(duplicated(cnum))]
+cat('Missing:',paste(missingC,sep=','),'Repeated:',paste(repeatedC,sep=','),'at position:',paste(which(cnum==repeatedC),sep=','))
+}
+}
+
+calculateCircle<-function(x, y, r, steps=50,sector=c(0,360),randomDist=FALSE, randomFun=runif,...)
+{
+  points = matrix(0,steps,2)
+  if (randomDist) n<-sector[1]+randomFun(steps,...)*(sector[2]-sector[1]) else n<-seq(sector[1],sector[2],length.out=steps)
+  if (randomDist) repeat {
+  n[which(!(n>=sector[1] & n<=sector[2]))]<-sector[1]+randomFun(sum(!(n>=sector[1] & n<=sector[2])),...)*(sector[2]-sector[1])
+  if (all(n>=sector[1] & n<=sector[2])) break
+  }
+    alpha = n * (pi / 180)
+    sinalpha = sin(alpha)
+    cosalpha = cos(alpha)
+    points[,1]<- x + (r * cosalpha)
+    points[,2]<- y + (r * sinalpha)
+  points
+}
+
+limitScore<-function(x)
+{ # internal function to restrict the plot of scoreFM100Graphic
+if (x<3) return(14)
+if (x>15) return(2)
+16-x
+}
+
+scoreFM100Graphic<-function(userFM100colors=NULL,userFM100values=NULL, titleGraphic="Farnsworth Munsell 100-Hue test results", okFM100colors=NULL, Kinnear=FALSE)
+{# plots the graphic to score the Farnsworth Munsell 100-Hue test by default, or a similar test by modifying titleGraphic and okFM100colors
+cirC<- round(calculateCircle(550,550,500,86))
+cirC2<- round(calculateCircle(550,550,530,86))
+circPos<-matrix(c(cirC),ncol=2,byrow=F)
+NumPos<-matrix(c(cirC2),ncol=2,byrow=F)
+circPos<-circPos[-1,] # coords for the circles
+NumPos<-NumPos[-1,] # coords for the numbers
+if ((is.null(userFM100colors)) & (is.null(userFM100values))) stop('Input either the colors chosen by the user for the Farnsworth Munsell 100-Hue test or the position values')
+if (is.null(okFM100colors)) {
+#okFM100colors<-sprintf('#%02x%02x%02x',FarnsworthMunsell100Hue[-1,'R'],FarnsworthMunsell100Hue[-1,'G'],FarnsworthMunsell100Hue[-1,'B'])
+okFM100colors<-sprintf('#%02x%02x%02x',FarnsworthMunsell100Hue[,'R'],FarnsworthMunsell100Hue[,'G'],FarnsworthMunsell100Hue[,'B'])
+}
+if (is.null(userFM100colors)) {
+pos2<-userFM100values
+} else {
+pos2<-c()
+for (n in 1:85) pos2<-c(pos2,which(userFM100colors[n] == okFM100colors))
+}
+#pos3<-86-pos2
+lenBox<-1100
+#circPos2<-circPos[pos3,] 
+#symbols(circPos[,1], circPos[,2], circles =rep(5,85) , inches = FALSE, xlim = c(1,lenBox), ylim = c(lenBox,1), xaxt='n', yaxt='n', ann=FALSE)
+cclockPos<-c(64:1,85:65) # counter-clockwise and with "1" on the top of the circle
+circPos<-circPos[cclockPos,]
+NumPos<-NumPos[cclockPos,]
+colRGB<- sprintf("#%02X%02X%02X", FarnsworthMunsell100Hue[,'R'],FarnsworthMunsell100Hue[,'G'],FarnsworthMunsell100Hue[,'B'])
+colRGB<- colRGB[cclockPos]
+plot(circPos[cclockPos,1], circPos[cclockPos,2], col=colRGB, cex=2,pch=19, xlim = c(1,lenBox), ylim = c(lenBox,1), xaxt='n', yaxt='n',xlab='',ylab='')
+#title and cap numbers
+par(new=T)
+
+if (titleGraphic=="Farnsworth Munsell 100-Hue test results") {
+titleGraphic <- paste(titleGraphic,ifelse(Kinnear, '(Kinnear score)','Farnsworth score'))
+}
+
+title(main =titleGraphic)
+par(new=T)
+zz<-c(1,1:42*2) # the traditional plot has number 1 and then only even numbers
+text(NumPos[zz,1], NumPos[zz,2], c(zz))
+par(new=T)
+#grid - circles
+scoreC<-array(0,c(14,2,85))
+for (n in 1:14) { 
+circTmp<-calculateCircle(550,550,(500-30*n),86)
+circTmp<-matrix(c(circTmp),ncol=2,byrow=F)
+circTmp<-circTmp[-1,]
+z1<-c(65:1,85:66)
+circTmp2<-circTmp[z1,]
+scoreC[n,,]<-t(circTmp2)
+#plot(scoreC[1,1,],scoreC[1,2,], col= sprintf("#%02X%02X%02X", FarnsworthMunsell100Hue[,'R'],FarnsworthMunsell100Hue[,'G'],FarnsworthMunsell100Hue[,'B']),type='p',pch=19, xlim = c(1,lenBox), ylim = c(lenBox,1))
+par(new=T)
+plot(scoreC[n,1,],scoreC[n,2,],col='lightgrey',type='l', xlim = c(1,lenBox), ylim = c(lenBox,1), xaxt='n', yaxt='n',xlab='',ylab='');
+par(new=T) }
+#grid - lines
+for (n in 1:85) { segments(scoreC[1,1,n],col='lightgrey',scoreC[1,2,n],scoreC[14,1,n],scoreC[14,2,n]); par(new=T) }
+
+# score
+scoreTES<-abs(calculateTES(pos2,!Kinnear))
+
+#for (n in 1:84) { segments(scoreC[16-scoreTES[n],1,n],scoreC[16-scoreTES[n],2,n],scoreC[16-scoreTES[n+1],1,n+1],scoreC[16-scoreTES[n+1],2,n+1], xlim = c(1,lenBox), ylim = c(lenBox,1)); par(new=T) }
+
+for (n in 1:84) { segments(scoreC[limitScore(scoreTES[n]),1,n],scoreC[limitScore(scoreTES[n]),2,n],scoreC[limitScore(scoreTES[n+1]),1,n+1],
+scoreC[limitScore(scoreTES[n+1]),2,n+1], xlim = c(1,lenBox), ylim = c(lenBox,1)); par(new=T) }
+}
+
+
+interpretation.VingrysAndKingSmith<-function(VKS,optMethod=88)
+{
+#Vingrys, A.J. and King-Smith, P.E. (1988).
+#A quantitative scoring technique for panel tests of color vision.
+#Investigative Ophthalmology and Visual Science, 29, 50-63.
+#VKS<-unlist(VKS)
+A<-as.numeric(VKS['VKS88','ANGLE']);C<-as.numeric(VKS['VKS88','MAGNITUDE']);S<-as.numeric(VKS['VKS88','SCATTER'])
+interpAngle<-'';interpMagnitude<-'';interpScatter<-''
+if ((A > 3) & (A < 17)) interpAngle<-'Protan'
+if ((A > -11) & (A < -4)) interpAngle<-'Deutan'
+if ((A > -90) & (A < -70)) interpAngle<-'Tritan'
+if (C > 1.78)  interpMagnitude<-'Abnormal arrangement'
+if (C <= 1.78)  interpMagnitude<-'Normal arrangement'
+if (S >= 2)  interpScatter<-'Selective'
+if (S < 2)  interpScatter<-'Random'
+c(Angle=interpAngle,Magnitude=interpMagnitude,Selectivity=interpScatter)
+}
+
+interpretation.Foutch<-function(FLJ)
+{
+# A new quantitative technique for grading Farnsworth D-15 color panel tests
+# Foutch, Brian K.; Stringham, James M.; Lakshminarayanan, Vasuvedan
+# Journal of Modern Optics, vol. 58, issue 19-20, pp. 1755-1763
+# 
+# Evaluation of the new web-based" Colour Assessment and Diagnosis" test
+# J Seshadri, J Christensen, V Lakshminarayanan, CJ BASSI
+# Optometry & Vision Science 82 (10), 882-885
+#FLJ<-unlist(FLJ)
+A<-as.numeric(FLJ['VKS88','ANGLE']);C<-as.numeric(FLJ['VKS88','Cindex']);S<-as.numeric(FLJ['VKS88','Sindex'])
+if ((FLJ['Angle'] > 0) & (FLJ['Angle'] < 30)) interpAngle<-'Protan'
+if ((FLJ['Angle'] > -30) & (FLJ['Angle'] < 0)) interpAngle<-'Deutan'
+if ((FLJ['Angle'] > 75) & (FLJ['Angle'] < 90)) interpAngle<-'Tritan'
+if (FLJ['Cindex'] > 1)  interpMagnitude<-'Abnormal arrangement'
+if (FLJ['Cindex'] <= 1)  interpMagnitude<-'Normal arrangement'
+if (FLJ['Sindex'] >= 1)  interpScatter<-'Selective'
+if (FLJ['Sindex'] < 1)  interpScatter<-'Random'
+c(Angle=interpAngle,Magnitude=interpMagnitude,Selectivity=interpScatter)
+}
+
+D15Foutch<-function(userD15values=NULL,testType='D-15') {
+#=======================================================
+#function to quantitatively analyze D15 color panel tests:
+# code from Dr Brian K. Foutch
+# Calculates angle, magnitude and scatter (for D-15 panels only) using all four models:
+# VK-S 88 and VK-S 93 (Vingrys, A.J. and King-Smith, P.E. (1988, 1993)), LSA 05 (Foutch/Bassi '05), and JMO 11 (Foutch/Stringham/Vengu '11).
+#
+# A new quantitative technique for grading Farnsworth D-15 color panel tests
+# Foutch, Brian K.; Stringham, James M.; Lakshminarayanan, Vasuvedan
+# Journal of Modern Optics, vol. 58, issue 19-20, pp. 1755-1763
+# 
+# Evaluation of the new web-based" Colour Assessment and Diagnosis" test
+# J Seshadri, J Christensen, V Lakshminarayanan, CJ BASSI
+# Optometry & Vision Science 82 (10), 882-885
+#
+#Vingrys, A.J. and King-Smith, P.E. (1988).
+#A quantitative scoring technique for panel tests of color vision.
+#Investigative Ophthalmology and Visual Science, 29, 50-63.
+
+#=======================================================
+#n = # of caps; 15 for D (and DS-) 15s...
+cnum<-userD15values
+n <- 15
+if (is.null(cnum)) stop('cnum must be defined')
+if (!is.numeric(cnum)) stop('cnum must be numeric')
+tType<-which(testType==c('D-15', 'D-15DS', 'FM1OO-Hue', 'Roth28-Hue'))
+if (length(testType)==0) stop('testType must be "D-15", "D-15DS", "Roth28-Hue" or "FM1OO-Hue"')
+if (any(trunc(cnum)!=cnum)) stop('cnum must be integers')
+if (testType %in% c('D-15', 'D-15DS')) 
+{
+if (length(cnum) != 15) stop('cnum must be a vector of 15 elements for D-15')
+
+if (!all(sort(cnum) == 1:15)) showDuplicated(cnum)
+
+if (!all(sort(cnum) == 1:15)) stop('cnum must be between 1 and 15, without repetition')
+}
+if (testType %in% c('Roth28-Hue')) 
+{
+if (length(cnum) != 28) stop('cnum must be a vector of 28 elements for Roth28-Hue')
+if (!all(sort(cnum) == 1:28)) stop('cnum must be between 1 and 28, without repetition')
+}
+if (testType == 'FM1OO-Hue') 
+{
+if (length(cnum) != 85) stop('cnum must be a vector of 85 elements for FM1OO-Hue')
+if (!all(sort(cnum) == 1:85)) stop('cnum must be between 1 and 85, without repetition')
+}
+#=============================================
+# For all models, initializing U and V vectors
+#=============================================
+
+
+dataVKS<-list(
+standardD15=matrix(c(-23.26,-25.56, -22.41,-15.53, -23.11,-7.45,-22.45,1.10, -21.67,7.35, -14.08,18.74,
+-2.72,28.13, 14.84,31.13, 23.87,26.35,31.82,14.76, 31.42,6.99, 29.79,0.10,26.64,-9.38, 22.92,-18.65, 11.20,-24.61,-21.54, -38.39),16,2,byrow=T)
+,
+desaturatedD15=matrix(c(-8.63,-14.65, -12.08,-11.94, -12.86,-6.74,-12.26,-2.67, -11.18,2.01, -7.02,9.12,
+1.30,15.78, 9.90,16.46, 15.03,12.05,15.48,2.56, 14.76,-2.24, 13.56,-5.04,11.06,-9.17, 8.95,-12.39, 5.62,-15.20,-4.77,-16.63),16,2,byrow=T)
+,
+FM100HUE=matrix(c(43.18,8.03, 44.37,11.34, 44.07,13.62, 44.95,16.04, 44.11,18.52,
+42.92,20.64, 42.02,22.49, 42.28,25.15, 40.96,27.78, 37.68,29.55,
+37.11,32.95, 35.41,35.94, 33.38,38.03, 30.88,39.59, 28.99,43.07,
+25.00,44.12, 22.87,46.44, 18.86,45.87, 15.47,44.97, 13.01,42.12,
+10.91,42.85, 8.49,41.35, 3.11,41.70, .68,39.23, -1.70,39.23,
+-4.14,36.66, -6.57,32.41, -8.53,33.19, -10.98,31.47, -15.07,27.89,
+-17.13,26.31, -19.39,23.82, -21.93,22.52, -23.40,20.14, -25.32,17.76,
+-25.10,13.29, -26.58,11.87, -27.35,9.52, -28.41,7.26, -29.54,5.10,
+-30.37,2.63, -31.07,0.10, -31.72,-2.42, -31.44,-5.13, -32.26,-8.16,
+-29.86,-9.51, -31.13,-10.59, -31.04,-14.30, -29.10,-17.32, -29.67,-19.59,
+-28.61,-22.65, -27.76,-26.66, -26.31,-29.24, -23.16,-31.24, -21.31,-32.92,
+-19.15,-33.17, -16.00,-34.90, -14.10,-35.21, -12.47,-35.84, -10.55,-37.74,
+-8.49,-34.78, -7.21,-35.44, -5.16,-37.08, -3.00,-35.95, -.31,-33.94,
+1.55,-34.50, 3.68,-30.63, 5.88,-31.18, 8.46,-29.46, 9.75,-29.46,
+12.24,-27.35, 15.61,-25.68, 19.63,-24.79, 21.20,-22.83, 25.60,-20.51,
+26.94,-18.40, 29.39,-16.29, 32.93,-12.30, 34.96,-11.57, 38.24,-8.88,
+39.06,-6.81, 39.51,-3.03, 40.90,-1.50, 42.80,0.60, 43.57,4.76,43.57,4.76),86,2,byrow=TRUE)
+,
+ROTH28=matrix(c(42.92,40.96,35.41,28.99,18.86,10.91,0.68,-6.57,-15.07,
+-21.93,-25.10,-28.41,-31.07,-32.26,-31.04,-28.61,-23.16,-16.00,-10.55,-5.16,1.55,
+8.46,15.61,25.60,32.93,39.06,42.80,4.76,13.62,20.64,27.78,35.94,43.07,45.87,42.85,
+39.23,32.41,27.89,22.52,13.29,7.26,0.10,-8.16,-14.30,-22.65,-31.24,-34.90,-37.74,
+-37.08,-34.50,-29.46,-25.68,-20.51,-12.30,-6.81,0.60,43.57,44.07),29,2,byrow=TRUE)
+)
+
+#if (tType==3) cnum<-c(cnum[85],cnum) else cnum<-c(0,cnum)
+tSize<-c(15,15,85,28)[tType]
+#CALCULATE SUMS OF SQUARES AND CROSS PRODUCTS
+#REM COLOR DIFFERENCE VECTORS
+u <- (dataVKS[[tType]])[,1]
+v <- (dataVKS[[tType]])[,2]
+
+#u<-as.vector(uv[,1]);v<-as.vector(uv[,2]);
+
+num_errors=0;
+#-------------------------------------------------------------
+#INPUT CAP NUMBERS: REF = Cnum 16, so use actual cap #s:
+#This code contains "checks" to ensure no cap repeated/skipped
+#-------------------------------------------------------------
+cnum<-c(16,cnum)
+#=========================================
+#INSERTING VK-s '88 MODEL HERE:
+#=========================================
+
+# CALCULATE COLOR DIFFERENCE VECTORS:
+u2=0; v2=0; uv=0; d=0;
+testu<-vector(length=16);testv<-vector(length=16);
+testu[1]=u[16];
+testv[1]=v[16]; #indexing test caps w/reference
+    
+du=u[cnum[1]]-u[16];
+dv=v[cnum[1]]-v[16];
+u2=u2 + du*du;
+v2=v2 + dv*dv;
+uv=uv + du*dv;
+
+# initialize du_plot(16) and dv_plot(16)
+#----------------------------------------
+du_plot<-as.numeric(vector(length=16))
+dv_plot<-as.numeric(vector(length=16))
+du_plot[1]=du;dv_plot[1]=dv;
+
+for (k in 1:15)
+{
+    testu[k+1]=u[cnum[k+1]];testv[k+1]=v[cnum[k+1]];
+    du=u[cnum[k+1]]-u[cnum[k]];
+    du_plot[k+1]=du;
+    dv=v[cnum[k+1]]-v[cnum[k]];
+    dv_plot[k+1]=dv;
+    u2=u2 + du*du;
+    v2=v2 + dv*dv;
+    uv=uv + du*dv;
+    d1 = d + u2 -v2;
+}
+
+# NEXT--CALCULATE MAJOR AND MINOR RADII AND ANGLE:
+d = u2-v2;
+
+if (d == 0)
+    a0=0.7854
+if (d != 0)
+    #Y = atan(X)
+    a0 = atan(2*uv/d)/2;
+
+#Major moment
+#------------
+i0=u2*sin(a0)^2+v2*cos(a0)^2-2*uv*sin(a0)*cos(a0);
+
+if (a0 < 0)
+    a1 = a0 + 1.5708
+if (a0 >= 0)
+    a1 = a0 - 1.5708;
+
+#Minor moment
+#------------
+i1=u2*sin(a1)^2+v2*cos(a1)^2-2*uv*sin(a1)*cos(a1);
+
+#if minor axis larger, swap angles and minor/major axes:
+#-------------------------------------------------------
+if (i1 > i0)
+{
+p=a0; a0=a1; a1=p;
+p=i0; i0 = i1; i1 =p; 
+}
+
+#Calculate total error and radii values
+#--------------------------------------
+r0 = (i0/n)^0.5; #n is for 15 possible moments of d-15
+r1 = (i1/n)^0.5; 
+r = (r0^2 + r1^2)^0.5;# = TES in algorithm
+
+if (n == 15) 
+    r2 = 9.234669; # r2 value for standard D-15
+
+c_index=r0/r2;s_index=r0/r1;
+c_index88=c_index;s_index88=s_index;
+ANGLE88=180*a1/pi;
+out88<-c(d,d1,u2,v2,uv,a0,a1,i0,i1,ANGLE88,c_index,s_index,r2)
+#arr_plot<-plot(testu,testv,type="l",xlim=c(-40,40),ylim=c(-40,40))
+
+#return(out88)
+
+# =========================================
+# END OF VK-S '88 MODEL
+#==========================================
+
+# NEXT--REINITIALIZE COLOR DIFFERENCE VECTORS:
+#---------------------------------------------
+
+# =============================================================================
+# Now, insert LSA '05 Model HERE
+# LSA '05 model calculates a best fit line (with y [or dV-]intercept based on:
+# dV = m*dU + b
+# The residuals "blow up" if angle is >45 degrees, so this code (and the model)
+# requires recalculation based on: dU = m* dV + b, if angle is >45 degrees
+# Publishes as AAO abstract in 2005 (Foutch & Bassi, OVS, eAbstract, 12/05)
+#===============================================================================
+
+#CALCULATE COLOR DIFFERENCE VECTORS:
+u2=0; v2=0; uv=0; d=0;
+testu<-vector(length=16);testv<-vector(length=16);
+testu[1]=u[16];
+testv[1]=v[16]; #indexing test caps w/reference
+    
+du=u[cnum[1]]-u[16];
+dv=v[cnum[1]]-v[16];
+u2=u2 + du*du;
+v2=v2 + dv*dv;
+uv=uv + du*dv;
+
+# initialize du_plot(16) and dv_plot(16)
+#----------------------------------------
+du_plot<-as.numeric(vector(length=16))
+dv_plot<-as.numeric(vector(length=16))
+
+du_plot[1]=du;dv_plot[1]=dv;
+#du_vectors(1)=0.0;dv_vectors(1)=0.0;
+#du_vectors(2)=du;dv_vectors(2)=dv;
+
+mindu=0.0;mindv=0.0;maxdu=0.0;maxdv=0.0;
+
+k=0;
+num_errors = 0;mag_errors2 = 0;
+num_errors
+if (cnum[2] != 1)
+    {
+    num_errors = num_errors + 1;
+    num_errors
+    #num_errors
+    du=u[cnum[2]]-u[16];
+    dv=v[cnum[2]]-v[16];
+    u2=u2 + du*du;
+    v2=v2 + dv*dv;
+    uv=uv + du*dv;
+    mag=sqrt(abs(du)^2+abs(dv)^2);
+    mag_errors2=mag_errors2+mag;
+    
+    if (du<mindu) mindu=du;
+    end
+    if (du>maxdu) maxdu=du;
+    end
+    if (dv<mindv) mindv=dv;
+    end
+    if (dv>maxdv) maxdv=dv;
+    end
+    }
+#...WORKS to THIS POINT!!!.............
+
+# initialize du_plot(16) and dv_plot(16)
+#----------------------------------------
+du_plot[1]=du;dv_plot[1]=dv;
+testu[2]=u[cnum[2]];testv[2]=v[cnum[2]];
+for (k in 2:15)
+    {
+    #(cnum(k+1)-cnum(k))
+    #testu[k+1]=u[cnum[k+1]];testv[k+1]=v[cnum[k+1]];
+
+    if (abs((cnum[k+1]-cnum[k])) > 1)
+        {
+        num_errors = num_errors + 1;  #num_errors
+        k
+        num_errors
+        du=u[cnum[k+1]]-u[cnum[k]];
+        if (du<mindu) mindu=du
+        if (du>maxdu) maxdu=du
+        du_plot[k]=du;
+        dv=v[cnum[k+1]]-v[cnum[k]];
+        mag=sqrt(abs(du)^2+abs(dv)^2);
+        mag_errors2=mag_errors2+mag;
+        if (dv<mindv) mindv=dv
+        if (dv>maxdv) maxdv=dv
+        dv_plot[k]=dv;
+        u2=u2 + du*du;
+        v2=v2 + dv*dv;
+        uv=uv + du*dv;
+        }
+    }
+
+# Initializing dU and dV vectors 
+uvec<-as.numeric(vector(length=num_errors))
+vvec<-as.numeric(vector(length=num_errors))
+
+#dudv<-matrix(ncol=2,nrow=16)
+#dudv<-data.frame(dudv)
+
+#dudv<-cbind(du_plot,dv_plot)
+
+kk=0
+for (i in 1:16)
+    if(abs(du_plot[i])>0)
+    {
+    kk=kk+1
+    uvec[kk]<-du_plot[i]
+    vvec[kk]<-dv_plot[i]
+    }
+
+#err_plot<-scatterplot(uvec,vvec,xlim=c(-80,80),ylim=c(-80,80),smooth=FALSE)
+
+#------------------------------------
+# LSA '05 Only works for n > 1 errors
+#------------------------------------
+
+if (num_errors > 1)
+{
+testuv<-summary(lm(vvec~uvec))
+testvu<-summary(lm(uvec~vvec))
+
+ssvu<-testvu$res^2
+ssuv<-testuv$res^2
+ssuvvec<-testuv$res^2
+ssvuvec<-testvu$res^2
+ssuv=0
+ssvu=0
+for (i in 1:num_errors)
+{
+ssuv<-ssuv+ssuvvec[i]
+ssvu<-ssvu+ssvuvec[i]
+}
+
+vtv<-ssuv/(num_errors-2)
+
+LSA_angle<-as.numeric(testuv$coef[2,1])
+LSA_angle<-atan(LSA_angle)*180/pi
+
+if(ssvu<ssuv) 
+ {#print("SWITCHED MODELS!!!!!!",file="")
+  vtv<-ssvu/(num_errors-2)
+  LSA_angle<-as.numeric(testvu$coef[2,1])
+  LSA_angle<- -(atan(LSA_angle)*180/pi+90)
+ } 
+
+if(LSA_angle>90)
+ {
+ LSA_angle<-180-LSA_angle
+ }
+
+if(LSA_angle<(-90))
+ {
+ LSA_angle<-180+LSA_angle
+ }
+}
+#========================      
+# END LSA '05 Model HERE
+#========================
+#
+# =============================================
+# Now, insert JMO '11 Model HERE
+# JMO '11 model calculates a best fit line (without y [or dV-]intercept based on:
+# dV = m*dU (see paper in Journ Modern Optics, Foutch et al., 2011)
+# The residuals "blow up" if angle is >45 degrees, so this code (and the model)
+# requires recalculation based on: dU = m* dV, if angle is >45 degrees
+#================================================
+# 
+
+if (num_errors > 0)
+{
+testuv11<-summary(lm(vvec~0+uvec))
+testvu11<-summary(lm(uvec~0+vvec))
+
+ssvu11<-testvu11$res^2
+ssuv11<-testuv11$res^2
+ssuvvec11<-testuv11$res^2
+ssvuvec11<-testvu11$res^2
+ssuv11=0
+ssvu11=0
+for (i in 1:num_errors)
+{
+ssuv11<-ssuv11+ssuvvec11[i]
+ssvu11<-ssvu11+ssvuvec11[i]
+}
+
+LSA_angle11<-as.numeric(testuv11$coef[1,1])
+LSA_angle11<-atan(LSA_angle11)*180/pi
+
+#== set JMO11 model equal to LSA05 magnitude==#
+mag11 = mag_errors2; 
+
+
+vtv11<-ssuv11/(num_errors-1)
+
+if(ssvu11<ssuv11) 
+ {#print("SWITCHED MODELS!!!!!!",file="")
+  vtv11<-ssvu11/(num_errors-1)
+  LSA_angle11<-as.numeric(testvu11$coef[1,1])
+  LSA_angle11<- -(atan(LSA_angle11)*180/pi+90)
+ } 
+
+if(LSA_angle11>90)
+ {
+ LSA_angle11<-180-LSA_angle11
+ }
+
+if(LSA_angle11<(-90))
+ {
+ LSA_angle11<-180+LSA_angle11
+ }
+}
+
+#========================
+#End JMO '11 MODEL HERE
+#========================
+
+#==========
+# VK-S 93 
+#==========
+#NEXT--CALCULATE MAJOR AND MINOR RADII AND ANGLE:
+d = u2-v2;
+
+#Y = atan(X)
+    a0 = atan(2*uv/d)/2;
+
+if (d == 0)
+    a0=0.7854;
+
+
+#Major moment
+#------------
+i0=u2*sin(a0)^2+v2*cos(a0)^2-2*uv*sin(a0)*cos(a0);
+
+a1 = a0 - 1.5708;
+if (a0 < 0)
+ a1 = a0 + 1.5708;
+
+
+#Minor moment
+#------------
+i1=u2*sin(a1)^2+v2*cos(a1)^2-2*uv*sin(a1)*cos(a1);
+
+#if minor axis larger, swap angles and minor/major axes:
+#-------------------------------------------------------
+
+if (i1 > i0)
+    {
+    if (i1<0) i1=0
+    p=a0; a0=a1; a1=p;
+    p=i0; i0 = i1; i1 =p; 
+    }
+
+#Calculate total error and radii values
+#--------------------------------------
+r0 = sqrt(abs(i0/n)); #n is for 15 possible moments of d-15
+r1 = sqrt(abs(i1/n)); 
+r = sqrt(r0^2 + r1^2);# = TES in algorithm
+
+if (n == 15) 
+    r2 = 9.234669; #r2 value for standard D-15
+
+c_index93=r0/r2;
+s_index93=(sqrt(r0^2-r1^2))/r2;
+ANGLE93=a1*180/pi;
+
+#=============
+# END VK-S 93 
+#=============
+
+#===========================================
+# Populating vectors and matrices for output
+#===========================================
+
+# VKS-88 output
+out88<-cbind(ANGLE88,c_index,s_index)
+out88
+
+# VKS-93 output
+out93<-cbind(ANGLE93,c_index93,s_index93)
+out93
+
+#if "no errors", "blanks" out LSA05 and JMO11 output
+if (num_errors == 0)
+{
+outLSA <- cbind("N/A","N/A","N/A")
+outJMO <- cbind("N/A","N/A","N/A")
+}
+
+
+#if only one error, "blanks" out LSA05 output
+if (num_errors == 1)
+{
+outLSA <- cbind("N/A","N/A","N/A")
+}
+
+# Calculates LSA '05 "modeled" output (see original paper)
+if (num_errors > 1)
+{
+outLSA<-cbind(LSA_angle,mag_errors2/83,18.47/sqrt(vtv))
+}
+
+# =========================================================
+# Calculates JMO '11 "modeled" output (see original paper);
+#    Same calculations as LSA '05:
+#    -----------------------------
+#      magnitude = magnitude / 83;
+#      scatter = 18.47/sqrt(sp^2) 
+
+if (num_errors > 0)
+{
+outJMO<-cbind(LSA_angle11,mag_errors2/83,18.47/sqrt(vtv11));
+}
+#===========================================================
+outmat<-matrix(nrow=4,ncol=3)
+outmat<-data.frame(outmat)
+names(outmat)<-c("ANGLE","MAGNITUDE","SCATTER")
+outmat[1,]<-outLSA
+if(num_errors>1) {outmat[1,]<-round(outLSA,2)}
+outmat[2,]<-outJMO
+if(num_errors>0) {outmat[2,]<-round(outJMO,2)}
+outmat[3,]<-round(out88,2)
+outmat[4,]<-round(out93,2)
+row.names(outmat)<-c("LSA05","JMO11","VKS88","VKS93")
+outmat
+}
+
+calculateTES<-function(fmData, Kinnear=FALSE)
+{ # total error score (TES) using Farnsworth's or Kinnear's method
+# cap 1 = pilot
+x<-length(fmData)
+R<-rep(0,x)
+for (n in 1:x) R[ifelse(Kinnear,fmData[n],n)]<-ifelse(n==1,abs(fmData[n]-fmData[x]),abs(fmData[n]-fmData[n-1])) + ifelse(n==x,abs(fmData[n]-fmData[1]),abs(fmData[n]-fmData[n+1]))
+if (x>80) R[R>50]<-R[R>50]-83
+R
+}
+
+scoreRoth28Graphic<-function(userR28colors=NULL,userR28values=NULL, titleGraphic="Roth-28 test results", okR28colors=NULL)
+{# plots the graphic to score the Roth-28 test by default, or a similar test by modifying titleGraphic and okR28colors
+cirC<-c(1050,1037,1000,941,862,767,661,550,439,333,238,159,100,63,50,63,100,159,238,333,439,550,661,767,862,941,1000,1037,1050,550,661,767,862,941,1000,1037,1050,1037,1000,941,862,767,661,550,439,333,238,159,100,63,50,63,100,159,238,333,439,550)
+cirC2<-c(1080,1067,1028,964,880,780,668,550,432,320,220,136,72,33,20,33,72,136,220,320,432,550,668,780,880,964,1028,1067,1080,550,668,780,880,964,1028,1067,1080,1067,1028,964,880,780,668,550,432,320,220,136,72,33,20,33,72,136,220,320,432,550)
+circPos<-matrix(c(cirC),ncol=2,byrow=F)
+NumPos<-matrix(c(cirC2),ncol=2,byrow=F)
+circPos<-circPos[-1,]
+NumPos<-NumPos[-1,]
+circPos<-circPos[c(18:28,1:17),]
+NumPos<-NumPos[c(18:28,1:17),]
+# if the user's input was in FM100 indices, convert to 1:28 range
+if (!is.null(userR28values)) if (is.numeric(userR28values)) if (any(userR28values>28)) userR28values<-userR28values %/% 3+1
+if ((is.null(userR28colors)) & (is.null(userR28values))) stop('Input either the colors chosen by the user for the Roth-28 test or the position values')
+if (is.null(okR28colors)) {
+okR28colors<-sprintf('#%02x%02x%02x',Roth28[-1,'R'],Roth28[-1,'G'],Roth28[-1,'B'])
+}
+if (is.null(userR28colors)) {
+pos2<-userR28values
+} else {
+pos2<-c()
+for (n in 1:28) pos2<-c(pos2,which(userR28colors[n] == okR28colors))
+}
+pos2<-29-pos2
+lenBox<-1100
+circPos2<-circPos[pos2,] 
+symbols(circPos[,1], circPos[,2], circles =rep(5,28) , inches = FALSE, xlim = c(1,lenBox), ylim = c(lenBox,1), xaxt='n', yaxt='n', ann=FALSE)
+par(new=T)
+title(main =titleGraphic)
+par(new=T)
+plot(circPos2[,1], circPos2[,2], xlim = c(1,lenBox), ylim = c(lenBox,1),type='l', xaxt='n', yaxt='n', ann=FALSE)
+par(new=T)
+segments(200,200,964, 880 , lty=2,col='red')
+par(new=T)
+segments(320, 1028,780, 72 , lty=2,col='green')
+par(new=T)
+segments(320,72,780, 1000,lty=2,col='blue')
+par(new=T)
+numText<-seq(82,1,-3)
+text(NumPos[,1], NumPos[,2], c(numText))
+par(new=T)
+text(664,235,"Tritan", srt=60) 
+par(new=T)
+text(270,230,"Protan", srt=-40) 
+par(new=T)
+text(420,200,"Deutan", srt=-60) 
+}
+
 scoreD15Graphic<-function(userD15colors=NULL,userD15values=NULL, titleGraphic="Farnsworth dichotomous test (D-15) results", okD15colors=NULL)
 {# plots the graphic to score the Farnsworth dichotomous test (D-15) by default, or a similar test by modifying titleGraphic and okD15colors
 circPos<-matrix(c(22,125,44,82,76,50,118,28,150,28,193,28,246,50,278,92,289,167,278,230,246,263,204,284,172,284,118,274,86,252,44,209),ncol=2,byrow=TRUE)
@@ -36,17 +873,19 @@ par(new=T)
 text(137,83,"D\ne\nu\nt\na\nn") 
 }
 
-scoreD15TCDS<-function(userD15colors=NULL,userD15values=NULL)
+scoreD15TCDS<-function(userD15colors=NULL,userD15values=NULL, distTable=BowmanTCDS, D15colors=FarnsworthD15)
 {# Compute the Total Color Difference Score (TCDS) for the D-15 colors or for their positions
 # Bowman's (1982) Total Color Difference Score (TCDS) for congenitally defective observers on the D-15 with enlarged tests.
 # K.J. Bowman, A method for quantitative scoring of the Farnsworth Panel D-15, Acta Ophthalmologica, 60 (1982), pp. 907–916
 # userD15colors RGB colors chosen by tester
 # userD15values position values chosen by tester
+# distTable a distance table, for example GellerTCDS for scoring D15d with Geller's method
+# D15colors contains the D15 colors in columns 'R', 'G' and 'B'
 if ((is.null(userD15colors)) & (is.null(userD15values))) stop('Input either the colors chosen by the user for the D-15 test or the position values')
 if (is.null(userD15colors)) {
 pos2<-userD15values
 } else {
-lColorsOK<-sprintf('#%02x%02x%02x',FarnsworthD15[-1,'R'],FarnsworthD15[-1,'G'],FarnsworthD15[-1,'B'])#c('#3583B4', '#3B84A7', '#39859C', '#3B8690', '#3F8782', '#588473', '#6C8164', '#837B5D', '#907660', '#9E6E6F', '#9F6D7C', '#9C6D89', '#927099', '#8F6FA4','#8073B2')
+lColorsOK<-sprintf('#%02x%02x%02x',D15colors[-1,'R'],D15colors[-1,'G'],D15colors[-1,'B'])
 pos2<-c()
 for (n in 1:15) pos2<-c(pos2,which(userD15colors[n] == lColorsOK) )
 }
@@ -54,18 +893,16 @@ posRow<-c(1,pos2+1)
 posRow<-posRow[1:15]
 posColumn<- pos2+1
 posValue<-c()
+posValueNormal<-c()
 for (n in 1:15) {
-posValue<-c(posValue,BowmanTCDS[posRow[n],posColumn[n]])
-posValueNormal<-c(n,BowmanTCDS[posRow[n],posColumn[n]])
+posValue<-c(posValue,distTable[posRow[n],posColumn[n]])
+posValueNormal<-c(posValueNormal,distTable[n+1,n])
 }
-TCDS<-sum(posValue)/10# TCDS
+TCDS<-sum(posValue)# TCDS
 #  Color Confusion Index (CCI = TCDSactual / TCDSnormal)
 CCI<-TCDS/sum(posValueNormal)
 c(TCDS=TCDS,CCI=CCI)
-
-
 }
-
 
 lightAdaptedPupilSize.Holladay<-function(L=NULL){
 # pupil diameter ranges, formula "for a probable average healthy young eye" - Holladay, L. (1926)
@@ -102,6 +939,13 @@ lightAdaptedPupilSize.DeGrootAndGebhard<-function(L=NULL){
 # Watson A. B., Yellott J. I. (2012). A unified formula for light-adapted pupil size. Journal of Vision, 12(10):12, 1–16. http://journalofvision.org/12/10/12/, doi:10.1167/5.9.6.
 # De Groot, S. G., & Gebhard, J. W. (1952). Pupil size as determined by adapting luminance. Journal of the Optical Society of America A, 42(7), 492–495.
 7.175*exp(-0.00092*(7.597+log(L))^3)
+}
+
+lightAdaptedPupilSize.LeGrand<-function(L=NULL){
+# pupil diameter ranges Le Grand 1992
+# L=luminance in cd m^-2
+# Vision, Pierre A. Buser, Michel Imbert, MIT Press, 1992
+5 - 3 * tanh(0.4 * log10(L))
 }
 
 lightAdaptedPupilSize.StanleyAndDavies<-function(L=NULL, a=NULL){
@@ -171,9 +1015,9 @@ greyscale.Y<-function(colorArray){# YIQ/NTSC - RGB colors in a gamma 2.2 color s
 colorArray[,,1]<-colorArray[,,1]*0.299
 colorArray[,,2]<-colorArray[,,2]*0.587
 colorArray[,,3]<-colorArray[,,3]*0.114
-
 if (dim(colorArray)[3]>3) p3<-apply(colorArray[,,-4],1:2,sum) else p3<-apply(colorArray,1:2,sum)
-
+#p3<-colorArray
+#if (dim(colorArray)[3]>3) p3<-apply(colorArray[,,-4],1:2,sum) else p3<-apply(colorArray,1:2,sum)
 p3<-array(p3,dim(colorArray))
 if (dim(colorArray)[3]>3) p3[,,4]<-colorArray[,,4]
 p3
@@ -210,9 +1054,7 @@ p3
 }
 
 greyscale.Luminosity<-function(colorArray){# Luminosity - grayscale algorithm
-
 if (dim(colorArray)[3]>3) p3<-apply(colorArray[,,-4],1:2,function(x) (max(x)+min(x))/2) else p3<-apply(colorArray,1:2,function(x) (max(x)+min(x))/2)
-
 p3<-array(p3,dim(colorArray))
 if (dim(colorArray)[3]>3) p3[,,4]<-colorArray[,,4]
 p3
@@ -504,21 +1346,28 @@ png::writePNG(p, fileOUT)
 }
 
 Color.Vision.VingrysAndKingSmith <-function(capnumbers=NULL,testType='D-15',silent=TRUE){
-#method of scoring the results of the "D-15", "D-15DS" or "FM1OO-Hue" tests
+#method of scoring the results of the "D-15", "D-15DS", "Roth28-Hue" or "FM1OO-Hue" tests
 #translated to R by Jose Gama 2013
 #Implementation of the Vingrys and King-Smith method (1988)
 #Vingrys, A.J. and King-Smith, P.E. (1988).
 #A quantitative scoring technique for panel tests of color vision.
 #Investigative Ophthalmology and Visual Science, 29, 50-63.
+
+# added "Roth28-Hue" test
 if (is.null(capnumbers)) stop('capnumbers must be defined')
 if (!is.numeric(capnumbers)) stop('capnumbers must be numeric')
-tType<-which(testType==c('D-15', 'D-15DS', 'FM1OO-Hue'))
-if (length(testType)==0) stop('testType must be "D-15", "D-15DS" or "FM1OO-Hue"')
+tType<-which(testType==c('D-15', 'D-15DS', 'FM1OO-Hue', "Roth28-Hue"))
+if (length(testType)==0) stop('testType must be "D-15", "D-15DS", "Roth28-Hue" or "FM1OO-Hue"')
 if (any(trunc(capnumbers)!=capnumbers)) stop('capnumbers must be integers')
 if (testType %in% c('D-15', 'D-15DS')) 
 {
 if (length(capnumbers) != 15) stop('capnumbers must be a vector of 15 elements for D-15')
 if (!all(sort(capnumbers) == 1:15)) stop('capnumbers must be between 1 and 15, without repetition')
+}
+if (testType %in% c('Roth28-Hue')) 
+{
+if (length(capnumbers) != 28) stop('capnumbers must be a vector of 28 elements for Roth28-Hue')
+if (!all(sort(capnumbers) == 1:28)) stop('capnumbers must be between 1 and 28, without repetition')
 }
 if (testType == 'FM1OO-Hue') 
 {
@@ -548,13 +1397,16 @@ FM100HUE=matrix(c(43.57,4.76,43.18,8.03, 44.37,11.34, 44.07,13.62, 44.95,16.04, 
 1.55,-34.50, 3.68,-30.63, 5.88,-31.18, 8.46,-29.46, 9.75,-29.46,
 12.24,-27.35, 15.61,-25.68, 19.63,-24.79, 21.20,-22.83, 25.60,-20.51,
 26.94,-18.40, 29.39,-16.29, 32.93,-12.30, 34.96,-11.57, 38.24,-8.88,
-39.06,-6.81, 39.51,-3.03, 40.90,-1.50, 42.80,0.60, 43.57,4.76),86,2,byrow=T))
+39.06,-6.81, 39.51,-3.03, 40.90,-1.50, 42.80,0.60, 43.57,4.76),86,2,byrow=TRUE)
+,
+ROTH28=matrix(c(43.57,44.07,42.92,40.96,35.41,28.99,18.86,10.91,0.68,-6.57,-15.07,-21.93,-25.10,-28.41,-31.07,-32.26,-31.04,-28.61,-23.16,-16.00,-10.55,-5.16,1.55,8.46,15.61,25.60,32.93,39.06,42.80,4.76,13.62,20.64,27.78,35.94,43.07,45.87,42.85,39.23,32.41,27.89,22.52,13.29,7.26,0.10,-8.16,-14.30,-22.65,-31.24,-34.90,-37.74,-37.08,-34.50,-29.46,-25.68,-20.51,-12.30,-6.81,0.60),29,2,byrow=TRUE)
+)
 
 if (!silent) print("SUMS OF U AND V")
 if (!silent) cat(sum(dataVKS[[tType]][,1]),sum(dataVKS[[tType]][,2]),'\n')
 #CHOOSE FIRST CAP NUMBER
 if (tType==3) capnumbers<-c(capnumbers[85],capnumbers) else capnumbers<-c(0,capnumbers)
-tSize<-c(16,16,86)[tType]
+tSize<-c(16,16,86,29)[tType]
 #CALCULATE SUMS OF SQUARES AND CROSS PRODUCTS
 #REM COLOR DIFFERENCE VECTORS
 DU = dataVKS[[tType]][capnumbers[2:(tSize)]+1,1]-dataVKS[[tType]][capnumbers[1:(tSize-1)]+1,1]
@@ -589,6 +1441,7 @@ R = sqrt(R0^2 + R1^2)
 if (tType == 1) { R2 = 9.234669; if (!silent) print ("STANDARD D-15")}
 if (tType == 2) { R2 = 5.121259; if (!silent) print ("DESATURATED D-15")}
 if (tType == 3) { R2 = 2.525249; if (!silent) print ("FM-100 HUE")}
+if (tType == 4) { R2 = 2.525249; if (!silent) print ("Roth-28 HUE")}
 if (!silent) cat ("ANGLE\tMAJ RAD\tMIN RAD\tTOT ERR\tS-INDEX\tC-INDEX\n")
 if (!silent) cat('\t',57.3 * A1,'\t', R0,'\t', R1,'\t', R,'\t', R0 / R1,'\t', R0 / R2)
 list(Angle=57.3 * A1,MajRad=R0,MinRad=R1,TotErr=R,Sindex=R0 / R1,Cindex=R0 / R2)
