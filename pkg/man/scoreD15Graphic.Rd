@@ -1,9 +1,11 @@
 \name{scoreD15Graphic}
 \alias{scoreD15Graphic}
 \title{Graphical score for the D-15 tests}
-\description{\code{scoreD15Graphic} computes the graphical score for the D-15 test or similar. The input is either a vector of RGB colors or cap positions.}
+\description{\code{scoreD15Graphic} computes the graphical score for 
+the D-15 test or similar. The input is either a vector of RGB colors or cap positions.}
 \usage{
-scoreD15Graphic(userD15colors=NULL,userD15values=NULL, titleGraphic="Farnsworth dichotomous test (D-15) results", okD15colors=NULL)
+scoreD15Graphic(userD15colors=NULL,userD15values=NULL, titleGraphic=
+"Farnsworth dichotomous test (D-15) results", okD15colors=NULL)
 }
 \arguments{
   \item{userD15colors}{ RGB colors chosen by tester}
@@ -16,7 +18,8 @@ scoreD15Graphic(userD15colors=NULL,userD15values=NULL, titleGraphic="Farnsworth 
 }
 \author{Jose Gama}
 \references{
-Farnsworth D. The Farnsworth Dichotomous Test for Color Blindness Panel D-15 Manual. New York, The Psychological Corp., 1947, pp. 1-8.
+Farnsworth D. The Farnsworth Dichotomous Test for Color Blindness Panel D-15 
+Manual. New York, The Psychological Corp., 1947, pp. 1-8.
 }
 \examples{
 # a "perfect" score

@@ -14,6 +14,3 @@ License: GPL (>= 3)
 Depends: R (>= 2.7.0)
 Enhances: png, gWidgets2, RGtk2
 LazyData: yes
-Maintainer: José Gama <jgama@abo.fi>
-
-
