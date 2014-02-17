@@ -21,6 +21,8 @@ Martin Faust 2008 http://www.e56.de/c2g.php
 }
 \examples{
 \dontrun{
-Color.Vision.c2g(userD15values=1:15)}
+fname<-paste(system.file(package='CVD'),'/extdata/fruits.png',sep='')
+Color.Vision.c2g(fname, 'fruits.c2g.png')
+}
 }
 \keyword{programming}

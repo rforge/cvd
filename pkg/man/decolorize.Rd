@@ -28,7 +28,7 @@ http://www.Eyemaginary.com/Portfolio/Publications.html
 samplePics <- c('fruits', 'pastel_color', 'sample1', 'TurnColorsGrayImage1', 'TurnColorsGrayImage2')
 for (pics in samplePics)
 {
-fname<-paste(system.file(package='CVD'),'/extdata/',pics,'.png',sep='')
+fname<-paste(system.file(package='CVD'),'/extdata/fruits.png',sep='')
 g1<-decolorize(fname)
 png::writePNG(g1$tones, paste(pics, '.decolorize.png',sep=''))
 }

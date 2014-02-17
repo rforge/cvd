@@ -22,6 +22,10 @@ Michael Deal Daltonize.org http://mudcu.be/labs/Color/Vision http://www.daltoniz
 \examples{
 # a "perfect" score
 \dontrun{
-Color.Vision.Daltonize(userD15values=1:15)}
+fname<-paste(system.file(package='CVD'),'/extdata/fruits.png',sep='')
+Color.Vision.Daltonize(fname, 'fruits.Daltonize.Protanope.png','Protanope')
+Color.Vision.Daltonize(fname, 'fruits.Daltonize.Deuteranope.png','Deuteranope')
+Color.Vision.Daltonize(fname, 'fruits.Daltonize.Tritanope.png','Tritanope')
+}
 }
 \keyword{programming}

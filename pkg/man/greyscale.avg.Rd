@@ -34,6 +34,21 @@ imgTest<-loadPNG(fname)
 g1<-greyscale.avg(imgTest)
 png::writePNG(g1, paste(pics, '.greyscale.avg.png',sep=''))
 }
+
+imgTest<-loadPNG(fname)
+g1<-greyscale.avg(imgTest)
+png::writePNG(g1, paste(pics, '.greyscale.avg.png',sep=''))
+g1<-greyscale.BT709(imgTest)
+png::writePNG(g1, paste(pics, '.BT709.png',sep=''))
+g1<-greyscale.Linear(imgTest)
+png::writePNG(g1, paste(pics, '.Linear.png',sep=''))
+g1<-greyscale.Luminosity(imgTest)
+png::writePNG(g1, paste(pics, '.Luminosity.png',sep=''))
+g1<-greyscale.RMY(imgTest)
+png::writePNG(g1, paste(pics, '.RMY.png',sep=''))
+g1<-greyscale.Y(imgTest)
+png::writePNG(g1, paste(pics, '.Y.png',sep=''))
+
 }
 }
 \keyword{programming}
