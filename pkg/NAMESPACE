@@ -1,4 +1,5 @@
-export("loadPNG",
+export("plotConfusionVectors",
+"loadPNG",
 "createPNGbuttons",
 "vectorPNGbuttons",
 "approx.scotopic.luminance.LarsonEtAl.XYZ",

@@ -118,4 +118,4 @@ eval(parse( text=paste('addDropSource(b, handler = function(h,...) tmpv<<-',as.c
 eval(parse( text=paste('addDropTarget(b,targetType="object", handler = function(h,...) dropF(h,',as.character(n),'))',sep='') ))
 }
 
-gtimer(2000, incTimer, lTimer )
+gtimer(9000, incTimer, lTimer )

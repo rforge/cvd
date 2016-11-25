@@ -3,11 +3,12 @@
 \title{Quantitatively analyzes of D15 color panel tests}
 \description{\code{D15Foutch} Calculates angle, magnitude and scatter for VK-S 88 and VK-S 93 (Vingrys, A.J. and King-Smith, P.E. (1988, 1993)), LSA 05 (Foutch/Bassi '05), and JMO 11 (Foutch/Stringham/Vengu '11).}
 \usage{
-D15Foutch(userD15values=NULL, testType = 'D-15')
+D15Foutch(userD15values=NULL, testType = 'D-15', dataVKS = NA)
 }
 \arguments{
   \item{userD15values}{ position values chosen by tester}
   \item{testType}{ the CVD test to be scored: "D-15", "D-15DS", "Roth28-Hue" or "FM1OO-Hue"}
+  \item{dataVKS}{ by default, the original 1976 CIE Luv data from Vingrys and King-Smith}
 }
 \value{
   \item{outmat}{ data.frame with columns "angle", "magnitude" and "scatter" and rows "LSA05","JMO11","VKS88","VKS93"}

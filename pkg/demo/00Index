@@ -14,4 +14,4 @@ exampleFM100	Example identical to proceedings of the New Zealand Generating fast
 exampleNRC1981	Example identical to Procedures for Testing Color Vision: Report of Working Group 41, 1981, Committee on Vision, National Research Council
 exampleSimunovic2004	Example identical to Cone dystrophies Part 2 Cone dysfunction syndromes, Matthew P Simunovic
 exampleVKS91	Example similar to Vingrys, A.J. and King-Smith, P.E. (1988). A quantitative scoring technique for panel tests of color vision. Investigative Ophthalmology and Visual Science, 29, 50-63.
-
+transformedUpDown	Plot Transformed Up-Down Method (1 up/2 down rule), using the simple up/down rule until the first (neglected) reversal, www.Bedienhaptik.de, Dr. Manuel Kuehner

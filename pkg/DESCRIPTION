@@ -1,9 +1,9 @@
 Package: CVD
 Type: Package
 Title: Color Vision Deficiencies
-Version: 1.0.1
+Version: 1.0.2
 Encoding: UTF-8
-Authors@R: c(person(given = "José", family = "Gama", role = c("aut","cre","trl"),email = "rxprtgama@gmail.com"),
+Authors@R: c(person(given = "Jose", family = "Gama", role = c("aut","cre","trl"),email = "rxprtgama@gmail.com"),
     person(given = "Brian", family = "Foutch", role = "ctb"),
     person(given = "Mark", family = "Grundland", role = "ctb"), 
     person(given = "Neil", family = "Dodgson", role = "ctb"))  

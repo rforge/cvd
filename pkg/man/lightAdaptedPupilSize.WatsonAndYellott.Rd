@@ -21,7 +21,7 @@ lightAdaptedPupilSize.WatsonAndYellott(L=NULL, a=NULL, y=NULL, y0=NULL, e=NULL)
 \references{
 Watson A. B., Yellott J. I. (2012). A unified formula for light-adapted pupil
  size. Journal of Vision, 12(10):12, 1–16. 
-\url{http://journalofvision.org/12/10/12/, doi:10.1167/5.9.6.}
+\url{http://www.ncbi.nlm.nih.gov/pubmed/23012448}
 }
 \examples{
 # Pupil diameter in mm for luminance = 1 cd m^-2, field diameter = 30 degrees,

@@ -1,7 +1,24 @@
 
 
 
-
+plotConfusionVectors<-function(colorSpace='CIE1931xy'){
+if (colorSpace=='CIE1931xy'){
+segments(neutralPoint['CIE1931xy','u'],neutralPoint['CIE1931xy','v'],dichromaticCopunctalPoint['P','CIE1931xyX'],dichromaticCopunctalPoint['P','CIE1931xyY'])
+segments(neutralPoint['CIE1931xy','u'],neutralPoint['CIE1931xy','v'],dichromaticCopunctalPoint['D','CIE1931xyX'],dichromaticCopunctalPoint['D','CIE1931xyY'])
+segments(neutralPoint['CIE1931xy','u'],neutralPoint['CIE1931xy','v'],dichromaticCopunctalPoint['T','CIE1931xyX'],dichromaticCopunctalPoint['T','CIE1931xyY'])
+} else {
+if (colorSpace=='CIE1976uv'){
+segments(neutralPoint['CIE1976uv','u'],neutralPoint['CIE1976uv','v'],dichromaticCopunctalPoint['P','CIE1976uvU'],dichromaticCopunctalPoint['P','CIE1976uvV'])
+segments(neutralPoint['CIE1976uv','u'],neutralPoint['CIE1976uv','v'],dichromaticCopunctalPoint['D','CIE1976uvU'],dichromaticCopunctalPoint['D','CIE1976uvV'])
+segments(neutralPoint['CIE1976uv','u'],neutralPoint['CIE1976uv','v'],dichromaticCopunctalPoint['T','CIE1976uvU'],dichromaticCopunctalPoint['T','CIE1976uvV'])
+} else {
+if (colorSpace=='CIE1960uv'){
+segments(neutralPoint['CIE1960uv','u'],neutralPoint['CIE1960uv','v'],dichromaticCopunctalPoint['P','CIE1960uvU'],dichromaticCopunctalPoint['P','CIE1960uvV'])
+segments(neutralPoint['CIE1960uv','u'],neutralPoint['CIE1960uv','v'],dichromaticCopunctalPoint['D','CIE1960uvU'],dichromaticCopunctalPoint['D','CIE1960uvV'])
+segments(neutralPoint['CIE1960uv','u'],neutralPoint['CIE1960uv','v'],dichromaticCopunctalPoint['T','CIE1960uvU'],dichromaticCopunctalPoint['T','CIE1960uvV'])
+}
+}
+}}
 
 vectorPNGbuttons<-function(capsData=FarnsworthD15)
 {# vector with the PNG button filenames
@@ -269,7 +286,7 @@ if (FLJ['Sindex'] < 1)  interpScatter<-'Random'
 c(Angle=interpAngle,Magnitude=interpMagnitude,Selectivity=interpScatter)
 }
 
-D15Foutch<-function(userD15values=NULL,testType='D-15') {
+D15Foutch<-function(userD15values=NULL,testType='D-15', dataVKS=NA) {
 #=======================================================
 #function to quantitatively analyze D15 color panel tests:
 # code from Dr Brian K. Foutch
@@ -290,6 +307,8 @@ D15Foutch<-function(userD15values=NULL,testType='D-15') {
 
 #=======================================================
 #n = # of caps; 15 for D (and DS-) 15s...
+
+# dataVKS by default are the CIE Luv data used by Vingrys and King-Smith
 cnum<-userD15values
 n <- 15
 if (is.null(cnum)) stop('cnum must be defined')
@@ -319,8 +338,7 @@ if (!all(sort(cnum) == 1:85)) stop('cnum must be between 1 and 85, without repet
 # For all models, initializing U and V vectors
 #=============================================
 
-
-dataVKS<-list(
+if (any(is.na(dataVKS))) dataVKS<-list(
 standardD15=matrix(c(-23.26,-25.56, -22.41,-15.53, -23.11,-7.45,-22.45,1.10, -21.67,7.35, -14.08,18.74,
 -2.72,28.13, 14.84,31.13, 23.87,26.35,31.82,14.76, 31.42,6.99, 29.79,0.10,26.64,-9.38, 22.92,-18.65, 11.20,-24.61,-21.54, -38.39),16,2,byrow=T)
 ,
