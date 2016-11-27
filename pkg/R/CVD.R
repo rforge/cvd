@@ -2,6 +2,8 @@
 
 
 plotConfusionVectors<-function(colorSpace='CIE1931xy'){
+neutralPoint<-get("neutralPoint", envir = environment())
+dichromaticCopunctalPoint<-get("dichromaticCopunctalPoint", envir = environment())
 if (colorSpace=='CIE1931xy'){
 segments(neutralPoint['CIE1931xy','u'],neutralPoint['CIE1931xy','v'],dichromaticCopunctalPoint['P','CIE1931xyX'],dichromaticCopunctalPoint['P','CIE1931xyY'])
 segments(neutralPoint['CIE1931xy','u'],neutralPoint['CIE1931xy','v'],dichromaticCopunctalPoint['D','CIE1931xyX'],dichromaticCopunctalPoint['D','CIE1931xyY'])
@@ -20,7 +22,7 @@ segments(neutralPoint['CIE1960uv','u'],neutralPoint['CIE1960uv','v'],dichromatic
 }
 }}
 
-vectorPNGbuttons<-function(capsData=FarnsworthD15)
+vectorPNGbuttons<-function(capsData=get("FarnsworthD15", envir = environment()))
 {# vector with the PNG button filenames
 capsData <- data.matrix((capsData[,c('R','G','B')]))
 apply(capsData,1,function(x) {
@@ -38,7 +40,7 @@ if (!silent) print(paste('PNG ',dim(p)[1],'x',dim(p)[2],', ',dim(p)[3],' channel
 p
 }
 
-createPNGbuttons<-function(capsData=FarnsworthD15, imgLength=44, imgWidth=78)
+createPNGbuttons<-function(capsData=get("FarnsworthD15", envir = environment()), imgLength=44, imgWidth=78)
 {# creates PNG buttons from a data.frame with RGB values for test caps
 capsData <- data.matrix((capsData[,c('R','G','B')]))
 apply(capsData,1,function(x) {
@@ -182,6 +184,7 @@ if (x>15) return(2)
 
 scoreFM100Graphic<-function(userFM100colors=NULL,userFM100values=NULL, titleGraphic="Farnsworth Munsell 100-Hue test results", okFM100colors=NULL, Kinnear=FALSE)
 {# plots the graphic to score the Farnsworth Munsell 100-Hue test by default, or a similar test by modifying titleGraphic and okFM100colors
+FarnsworthMunsell100Hue<-get("FarnsworthMunsell100Hue", envir = environment())
 cirC<- round(calculateCircle(550,550,500,86))
 cirC2<- round(calculateCircle(550,550,530,86))
 circPos<-matrix(c(cirC),ncol=2,byrow=F)
@@ -809,6 +812,7 @@ R
 
 scoreRoth28Graphic<-function(userR28colors=NULL,userR28values=NULL, titleGraphic="Roth-28 test results", okR28colors=NULL)
 {# plots the graphic to score the Roth-28 test by default, or a similar test by modifying titleGraphic and okR28colors
+Roth28<-get("Roth28", envir = environment())
 cirC<-c(1050,1037,1000,941,862,767,661,550,439,333,238,159,100,63,50,63,100,159,238,333,439,550,661,767,862,941,1000,1037,1050,550,661,767,862,941,1000,1037,1050,1037,1000,941,862,767,661,550,439,333,238,159,100,63,50,63,100,159,238,333,439,550)
 cirC2<-c(1080,1067,1028,964,880,780,668,550,432,320,220,136,72,33,20,33,72,136,220,320,432,550,668,780,880,964,1028,1067,1080,550,668,780,880,964,1028,1067,1080,1067,1028,964,880,780,668,550,432,320,220,136,72,33,20,33,72,136,220,320,432,550)
 circPos<-matrix(c(cirC),ncol=2,byrow=F)
@@ -856,6 +860,7 @@ text(420,200,"Deutan", srt=-60)
 
 scoreD15Graphic<-function(userD15colors=NULL,userD15values=NULL, titleGraphic="Farnsworth dichotomous test (D-15) results", okD15colors=NULL)
 {# plots the graphic to score the Farnsworth dichotomous test (D-15) by default, or a similar test by modifying titleGraphic and okD15colors
+FarnsworthD15<-get("FarnsworthD15", envir = environment())
 circPos<-matrix(c(22,125,44,82,76,50,118,28,150,28,193,28,246,50,278,92,289,167,278,230,246,263,204,284,172,284,118,274,86,252,44,209),ncol=2,byrow=TRUE)
 NumPos<-matrix(c(22,135,44,82-15,76,50-15,118,28-15,150,28-15,193,28-15,246,50-15,278+15,92,289+15,167,278+15,230,246,263+15,204,284+15,172,284+15,118,274+15,86,252+15,44,209+15),ncol=2,byrow=TRUE)
 if ((is.null(userD15colors)) & (is.null(userD15values))) stop('Input either the colors chosen by the user for the D-15 test or the position values')
@@ -891,7 +896,7 @@ par(new=T)
 text(137,83,"D\ne\nu\nt\na\nn") 
 }
 
-scoreD15TCDS<-function(userD15colors=NULL,userD15values=NULL, distTable=BowmanTCDS, D15colors=FarnsworthD15)
+scoreD15TCDS<-function(userD15colors=NULL,userD15values=NULL, distTable=get("BowmanTCDS", envir = environment()), D15colors=get("FarnsworthD15", envir = environment()))
 {# Compute the Total Color Difference Score (TCDS) for the D-15 colors or for their positions
 # Bowman's (1982) Total Color Difference Score (TCDS) for congenitally defective observers on the D-15 with enlarged tests.
 # K.J. Bowman, A method for quantitative scoring of the Farnsworth Panel D-15, Acta Ophthalmologica, 60 (1982), pp. 907–916
@@ -1237,7 +1242,7 @@ ConfusionLines <- data.frame(name=c("Protanope","Deuteranope","Tritanope","Achro
 m=c(1.273463,0.968437,0.062921,0), yint=c(-0.073894,0.003331,0.292119,0))
 if (is.character(myoptions)) if (!(myoptions %in% as.vector(ConfusionLines[["name"]]))) stop('Wrong option, must be: Protanope, Deuteranope, Tritanope or Achromatope.')
 
-library('png', character.only=TRUE)
+#library('png', character.only=TRUE)
 if (is.character(myoptions))
 {
 if (myoptions %in% as.vector(ConfusionLines[["name"]])) {

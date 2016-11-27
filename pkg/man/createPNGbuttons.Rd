@@ -4,7 +4,8 @@
 \description{ \code{createPNGbuttons} creates PNG files from a data.frame with RGB values.
 }
 \usage{
-createPNGbuttons(capsData = FarnsworthD15, imgLength = 44, imgWidth = 78)
+createPNGbuttons(capsData = get("FarnsworthD15", envir = environment()),
+ imgLength = 44, imgWidth = 78)
 }
 \arguments{
   \item{capsData}{ Input file name.}

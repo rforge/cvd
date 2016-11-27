@@ -5,8 +5,9 @@
 (TCDS) for the D-15 test, from Bowman's (1982). The input is either a vector 
 of RGB colors or cap positions.}
 \usage{
-scoreD15TCDS(userD15colors=NULL,userD15values=NULL, distTable = BowmanTCDS, 
-D15colors = FarnsworthD15)
+scoreD15TCDS(userD15colors=NULL,userD15values=NULL,
+ distTable = get("BowmanTCDS", envir = environment()), 
+D15colors = get("FarnsworthD15", envir = environment()))
 }
 \arguments{
   \item{userD15colors}{ RGB colors chosen by tester}

@@ -19,8 +19,7 @@ effectiveCornealFluxDensity(L=NULL,a=NULL,e=NULL)
 \author{Jose Gama}
 \references{
 Watson A. B., Yellott J. I. (2012). A unified formula for light-adapted 
-pupil size. Journal of Vision, 12(10):12, 1–16. 
-\url{http://journalofvision.org/12/10/12/, doi:10.1167/5.9.6.}
+pupil size. Journal of Vision, 12(10):12, 1–16.
 }
 \examples{
 # effective Corneal Flux Density, luminance in cd m^-2 = 1, field area in 
