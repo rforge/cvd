@@ -1,3 +1,5 @@
+importFrom("graphics", "Axis", "abline", "legend", "lines", "par", "plot", "segments", "symbols", "text", "title")
+importFrom("stats", "end", "lm", "quantile", "rnorm", "runif")
 export("plotConfusionVectors",
 "loadPNG",
 "createPNGbuttons",
